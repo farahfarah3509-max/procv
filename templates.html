@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="ProCV Builder — صانع السيرة الذاتية الذكي"/>
+<meta name="theme-color" content="#0c0c0e"/>
+<title>ProCV — صانع السيرة الذاتية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════════
+   TOKENS & RESET
+════════════════════════════════════════════ */
+:root{
+  --bg:        #0c0c0e;
+  --bg-2:      #111114;
+  --bg-card:   #16161b;
+  --bg-input:  #1c1c22;
+  --border:    rgba(255,255,255,.07);
+  --border-g:  rgba(201,168,76,.22);
+  --gold:      #c9a84c;
+  --gold-lt:   #e8d08a;
+  --gold-dk:   #8a6e2a;
+  --gold-glow: rgba(201,168,76,.13);
+  --white:     #ffffff;
+  --gray-1:    #e4e4ea;
+  --gray-2:    #9898aa;
+  --gray-3:    #5a5a6e;
+  --success:   #27ae60;
+  --error:     #e74c3c;
+  --ff:        'Cairo',system-ui,sans-serif;
+  --ffh:       'Tajawal',system-ui,sans-serif;
+  --ease:      cubic-bezier(.4,0,.2,1);
+  --spring:    cubic-bezier(.34,1.56,.64,1);
+  --r:         10px;
+  --r-lg:      16px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--ff);background:var(--bg);color:var(--white);
+  overflow-x:hidden;line-height:1.6;cursor:none;min-height:100svh;
+}
+a,button,[role="button"]{cursor:none}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+button{font-family:inherit;border:none;background:none}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+::selection{background:rgba(201,168,76,.25)}
+
+/* ════════════════════════════════════════════
+   CURSOR
+════════════════════════════════════════════ */
+#cur{
+  position:fixed;top:0;left:0;width:9px;height:9px;
+  background:var(--gold);border-radius:50%;pointer-events:none;
+  z-index:9999;will-change:transform;
+  transition:width .18s var(--ease),height .18s var(--ease),opacity .18s,background .18s;
+}
+#cur.big{width:20px;height:20px;opacity:.45;background:transparent;border:1.5px solid var(--gold)}
+
+/* ════════════════════════════════════════════
+   NAV
+════════════════════════════════════════════ */
+.nav{
+  position:fixed;inset-block-start:0;inset-inline:0;z-index:800;
+  background:rgba(12,12,14,.88);
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  border-bottom:1px solid var(--border);
+  transition:box-shadow .3s;
+}
+.nav.scrolled{box-shadow:0 4px 32px rgba(0,0,0,.5)}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  height:68px;max-width:1200px;margin-inline:auto;
+  padding-inline:clamp(1.2rem,4vw,2.5rem);
+}
+.logo{font-family:var(--ffh);font-weight:900;font-size:1.45rem;letter-spacing:-.5px}
+.logo em{color:var(--gold);font-style:normal}
+.logo sup{font-size:.48rem;vertical-align:super;color:var(--gray-3);font-weight:700;letter-spacing:1px}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{
+  color:var(--gray-2);font-size:.85rem;font-weight:600;
+  position:relative;transition:color .22s;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-3px;right:0;
+  width:0;height:1.5px;background:var(--gold);
+  transition:width .28s var(--ease);
+}
+.nav-links a:hover,.nav-links a.active{color:var(--white)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-right{display:flex;align-items:center;gap:12px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 22px;border-radius:var(--r);
+  font-family:var(--ff);font-size:.88rem;font-weight:700;
+  transition:all .28s var(--ease);position:relative;overflow:hidden;
+  white-space:nowrap;
+}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.07);opacity:0;transition:opacity .2s}
+.btn:hover::after{opacity:1}
+.btn-g{background:var(--gold);color:#0c0c0e}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,.28)}
+.btn-o{border:1.5px solid rgba(255,255,255,.14);color:var(--white)}
+.btn-o:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:8px 18px;font-size:.82rem}
+.burger{
+  display:none;flex-direction:column;gap:5px;padding:5px;
+}
+.burger span{
+  display:block;width:21px;height:1.8px;background:var(--white);
+  border-radius:2px;transition:all .28s var(--ease);
+}
+.burger.x span:nth-child(1){transform:translateY(6.8px) rotate(45deg)}
+.burger.x span:nth-child(2){opacity:0;transform:scaleX(0)}
+.burger.x span:nth-child(3){transform:translateY(-6.8px) rotate(-45deg)}
+.drawer{
+  display:none;flex-direction:column;gap:2px;
+  background:var(--bg-2);border-top:1px solid var(--border);
+  padding:14px 20px 18px;
+}
+.drawer.open{display:flex}
+.drawer a{
+  color:var(--gray-2);font-size:.92rem;font-weight:600;
+  padding:10px 0;border-bottom:1px solid var(--border);transition:color .2s;
+}
+.drawer a:last-child{border:none}
+.drawer a:hover{color:var(--gold)}
+
+/* ════════════════════════════════════════════
+   BUILDER PAGE SHELL
+════════════════════════════════════════════ */
+.builder-page{
+  min-height:100svh;
+  padding-top:68px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+/* ── LEFT PANEL (form) ─────────────────── */
+.form-panel{
+  background:var(--bg-2);
+  border-inline-end:1px solid var(--border);
+  display:flex;flex-direction:column;
+  min-height:calc(100svh - 68px);
+}
+
+/* ── RIGHT PANEL (live preview) ────────── */
+.preview-panel{
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:clamp(1.5rem,3vw,3rem) clamp(1rem,2.5vw,2rem);
+  position:sticky;top:68px;height:calc(100svh - 68px);
+  overflow-y:auto;
+}
+
+/* ════════════════════════════════════════════
+   PROGRESS BAR
+════════════════════════════════════════════ */
+.progress-wrap{
+  padding:clamp(1rem,2vw,1.5rem) clamp(1.2rem,3vw,2rem) 0;
+  flex-shrink:0;
+}
+.progress-labels{
+  display:flex;justify-content:space-between;
+  margin-bottom:10px;
+}
+.prog-lbl{
+  font-size:.66rem;font-weight:700;color:var(--gray-3);
+  letter-spacing:.5px;transition:color .3s;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  flex:1;text-align:center;
+}
+.prog-lbl .step-dot{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--bg-card);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;color:var(--gray-3);
+  transition:all .35s var(--ease);position:relative;z-index:1;
+}
+.prog-lbl.done .step-dot{background:var(--gold);border-color:var(--gold);color:#0c0c0e}
+.prog-lbl.done .step-dot::after{content:'✓'}
+.prog-lbl.done .step-dot span{display:none}
+.prog-lbl.active .step-dot{
+  background:var(--gold-glow);border-color:var(--gold);color:var(--gold);
+  box-shadow:0 0 0 4px rgba(201,168,76,.18);
+}
+.prog-lbl.active{color:var(--gold-lt)}
+.prog-lbl .lbl-txt{display:block;font-size:.6rem}
+
+.progress-track{
+  height:3px;background:var(--bg-card);border-radius:2px;
+  overflow:hidden;margin-bottom:clamp(1rem,2vw,1.5rem);
+  position:relative;
+}
+.progress-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--gold-dk),var(--gold),var(--gold-lt));
+  transition:width .55s var(--ease);
+}
+
+/* Step counter badge */
+.step-counter{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(1.2rem,3vw,2rem) 0;
+  margin-bottom:4px;
+}
+.sc-badge{
+  background:var(--gold-glow);border:1px solid var(--border-g);
+  color:var(--gold);font-size:.7rem;font-weight:700;
+  padding:3px 11px;border-radius:100px;letter-spacing:.5px;
+}
+.sc-pct{font-size:.7rem;color:var(--gray-3);font-weight:600}
+
+/* ════════════════════════════════════════════
+   FORM BODY
+════════════════════════════════════════════ */
+.form-body{
+  flex:1;overflow-y:auto;
+  padding:0 clamp(1.2rem,3vw,2rem) clamp(1.5rem,3vw,2.5rem);
+}
+.form-body::-webkit-scrollbar{width:2px}
+
+/* Step panels */
+.step-panel{
+  display:none;
+  animation:slideIn .38s var(--ease) both;
+}
+.step-panel.active{display:block}
+.step-panel.leaving{
+  animation:slideOut .28s var(--ease) both;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInRev{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideOut{from{opacity:1}to{opacity:0;transform:translateX(20px)}}
+.step-panel.rev-in{animation-name:slideInRev}
+
+.step-head{margin-bottom:clamp(1.2rem,2.5vw,1.8rem);padding-top:4px}
+.step-num-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--gold-glow);border:1px solid var(--border-g);
+  color:var(--gold);font-size:.68rem;font-weight:700;
+  padding:4px 12px;border-radius:100px;
+  margin-bottom:12px;letter-spacing:.5px;
+}
+.step-title{
+  font-family:var(--ffh);font-size:clamp(1.3rem,2.5vw,1.7rem);
+  font-weight:900;margin-bottom:6px;
+}
+.step-sub{font-size:.84rem;color:var(--gray-2);line-height:1.7}
+
+/* ── FORM ELEMENTS ──────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.col1{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:2px}
+.form-group.full{grid-column:1/-1}
+.form-label{
+  font-size:.76rem;font-weight:700;color:var(--gray-2);
+  letter-spacing:.3px;
+}
+.form-label .req{color:var(--gold);margin-inline-start:2px}
+.form-input,
+.form-textarea,
+.form-select{
+  background:var(--bg-input);
+  border:1.5px solid var(--border);
+  border-radius:var(--r);
+  padding:11px 14px;
+  color:var(--white);font-size:.88rem;
+  transition:border-color .25s,background .25s,box-shadow .25s;
+  outline:none;appearance:none;
+  width:100%;
+}
+.form-input::placeholder,
+.form-textarea::placeholder{color:var(--gray-3)}
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus{
+  border-color:var(--gold);
+  background:rgba(201,168,76,.05);
+  box-shadow:0 0 0 3px rgba(201,168,76,.12);
+}
+.form-input.error,.form-textarea.error{border-color:var(--error);box-shadow:0 0 0 3px rgba(231,76,60,.12)}
+.form-textarea{resize:vertical;min-height:88px;line-height:1.65}
+.form-select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239898aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:left 12px center;
+  padding-left:32px;
+}
+.err-msg{font-size:.72rem;color:var(--error);margin-top:2px;display:none}
+.err-msg.show{display:block}
+.char-count{font-size:.68rem;color:var(--gray-3);text-align:end;margin-top:3px}
+
+/* ── HINT BOX ───────────────────────── */
+.hint-box{
+  background:rgba(201,168,76,.06);
+  border:1px solid var(--border-g);
+  border-radius:var(--r);padding:12px 14px;
+  font-size:.8rem;color:var(--gold-lt);line-height:1.7;
+  margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;
+}
+.hint-box .hi{flex-shrink:0;font-size:1rem}
+
+/* ── REPEATABLE ENTRY CARDS ────────── */
+.entries-list{display:flex;flex-direction:column;gap:16px;margin-bottom:16px}
+.entry-card{
+  background:var(--bg-card);
+  border:1.5px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:clamp(1rem,2vw,1.4rem);
+  position:relative;
+  transition:border-color .28s;
+}
+.entry-card:hover{border-color:rgba(201,168,76,.3)}
+.entry-card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.entry-card-title{
+  font-family:var(--ffh);font-size:.9rem;font-weight:800;
+  display:flex;align-items:center;gap:8px;
+}
+.entry-badge{
+  background:var(--gold-glow);border:1px solid var(--border-g);
+  color:var(--gold);font-size:.6rem;font-weight:700;
+  padding:2px 9px;border-radius:100px;
+}
+.entry-remove{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.2);
+  color:#e74c3c;font-size:.75rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .22s;
+}
+.entry-remove:hover{background:rgba(231,76,60,.22)}
+
+/* Add-more button */
+.add-btn{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:13px;border-radius:var(--r);
+  border:1.5px dashed var(--border-g);
+  background:transparent;color:var(--gold);
+  font-size:.86rem;font-weight:700;
+  transition:all .28s var(--ease);
+}
+.add-btn:hover{background:var(--gold-glow);border-color:var(--gold)}
+
+/* ── SKILLS & LANGUAGES ─────────────── */
+.skills-input-wrap{position:relative;margin-bottom:8px}
+.skills-tags{
+  display:flex;flex-wrap:wrap;gap:7px;
+  min-height:44px;
+  background:var(--bg-input);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:8px 10px;
+  cursor:text;transition:border-color .25s;
+}
+.skills-tags:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.skill-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(201,168,76,.14);border:1px solid var(--border-g);
+  color:var(--gold-lt);font-size:.78rem;font-weight:600;
+  padding:3px 10px;border-radius:100px;
+  animation:chipIn .25s var(--spring) both;
+}
+@keyframes chipIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.chip-del{
+  background:none;border:none;color:var(--gray-3);
+  font-size:.7rem;padding:0;width:14px;height:14px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:all .2s;
+}
+.chip-del:hover{background:rgba(231,76,60,.2);color:#e74c3c}
+.skills-input-field{
+  background:transparent;border:none;outline:none;
+  color:var(--white);font-size:.86rem;font-family:var(--ff);
+  min-width:100px;flex:1;padding:2px 4px;
+}
+.skills-input-field::placeholder{color:var(--gray-3)}
+.skills-hint{font-size:.7rem;color:var(--gray-3);margin-bottom:14px}
+
+/* Language rows */
+.lang-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.lang-row{
+  display:grid;grid-template-columns:1fr 1fr auto;
+  gap:10px;align-items:center;
+}
+.lang-del{
+  width:34px;height:34px;flex-shrink:0;border-radius:8px;
+  background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.2);
+  color:#e74c3c;font-size:.75rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .22s;
+}
+.lang-del:hover{background:rgba(231,76,60,.22)}
+
+/* ── STEP 5 — REVIEW ─────────────────── */
+.review-section{margin-bottom:24px}
+.review-section-title{
+  font-family:var(--ffh);font-size:.82rem;font-weight:800;
+  color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;
+  border-bottom:1px solid var(--border-g);
+  padding-bottom:8px;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.review-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.review-item{background:var(--bg-card);border-radius:8px;padding:12px 14px}
+.review-key{font-size:.68rem;color:var(--gray-3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
+.review-val{font-size:.86rem;color:var(--gray-1);font-weight:600;word-break:break-word}
+.review-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.review-tag{
+  background:rgba(201,168,76,.1);border:1px solid var(--border-g);
+  color:var(--gold-lt);font-size:.7rem;font-weight:600;
+  padding:2px 9px;border-radius:100px;
+}
+
+/* Pricing cards */
+.pricing-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.price-card{
+  background:var(--bg-card);border:2px solid var(--border);
+  border-radius:var(--r-lg);padding:22px 18px;
+  cursor:pointer;transition:all .3s var(--ease);position:relative;
+  text-align:center;
+}
+.price-card:hover{border-color:rgba(201,168,76,.35);transform:translateY(-3px)}
+.price-card.selected{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.price-card.selected::before{
+  content:'✓';position:absolute;top:10px;inset-inline-end:12px;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--gold);color:#0c0c0e;
+  font-size:.7rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+.pc-badge{
+  font-size:.62rem;font-weight:700;letter-spacing:1px;
+  color:var(--gray-3);text-transform:uppercase;margin-bottom:8px;
+}
+.pc-price{
+  font-family:var(--ffh);font-size:2rem;font-weight:900;
+  color:var(--gold);line-height:1;margin-bottom:4px;
+}
+.pc-period{font-size:.72rem;color:var(--gray-3);margin-bottom:14px}
+.pc-feats{display:flex;flex-direction:column;gap:6px;text-align:right}
+.pc-feat{font-size:.76rem;color:var(--gray-2);display:flex;align-items:center;gap:6px}
+.pc-feat::before{content:'✓';color:var(--gold);font-weight:800;flex-shrink:0}
+.pc-popular{
+  position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:#0c0c0e;
+  font-size:.6rem;font-weight:800;
+  padding:3px 12px;border-radius:100px;white-space:nowrap;
+}
+
+/* ── FORM FOOTER NAV ─────────────────── */
+.form-footer{
+  flex-shrink:0;
+  padding:clamp(.8rem,1.5vw,1.2rem) clamp(1.2rem,3vw,2rem);
+  border-top:1px solid var(--border);
+  background:var(--bg-2);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 26px;border-radius:var(--r);
+  font-family:var(--ff);font-size:.9rem;font-weight:700;
+  transition:all .28s var(--ease);
+  border:none;
+}
+.btn-prev{
+  background:var(--bg-card);color:var(--gray-2);
+  border:1.5px solid var(--border);
+}
+.btn-prev:hover{color:var(--white);border-color:rgba(255,255,255,.2)}
+.btn-prev:disabled{opacity:.3;pointer-events:none}
+.btn-next{background:var(--gold);color:#0c0c0e}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,.3)}
+.btn-submit{background:var(--success);color:#fff}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(39,174,96,.3)}
+.auto-save{font-size:.7rem;color:var(--gray-3);display:flex;align-items:center;gap:5px}
+.save-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ════════════════════════════════════════════
+   LIVE PREVIEW (RIGHT PANEL)
+════════════════════════════════════════════ */
+.preview-header{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:clamp(1rem,2vw,1.5rem);
+}
+.preview-title{
+  font-family:var(--ffh);font-size:.85rem;font-weight:800;
+  color:var(--gray-3);letter-spacing:1px;text-transform:uppercase;
+}
+.preview-badges{display:flex;gap:8px}
+.p-badge{
+  font-size:.64rem;font-weight:700;letter-spacing:.5px;
+  padding:3px 10px;border-radius:100px;
+}
+.p-badge.ats{background:rgba(39,174,96,.12);color:var(--success);border:1px solid rgba(39,174,96,.25)}
+.p-badge.live{background:var(--gold-glow);color:var(--gold);border:1px solid var(--border-g);display:flex;align-items:center;gap:5px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 1.8s infinite}
+
+.cv-paper{
+  width:100%;max-width:420px;
+  background:#ffffff;color:#111;
+  border-radius:10px;
+  box-shadow:0 32px 72px rgba(0,0,0,.6);
+  overflow:hidden;font-family:var(--ff);
+  transform-origin:top center;
+  transition:transform .4s var(--ease);
+}
+.cv-paper:hover{transform:scale(1.015)}
+
+/* CV Header */
+.cvp-head{
+  background:linear-gradient(135deg,#1a1e2e 0%,#252d44 100%);
+  padding:24px 22px;color:#fff;
+  display:flex;align-items:center;gap:16px;
+}
+.cvp-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#8a6e2a,#c9a84c);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ffh);font-size:1.1rem;font-weight:900;
+  color:#0c0c0e;flex-shrink:0;
+  border:2px solid rgba(201,168,76,.4);
+}
+.cvp-name{font-family:var(--ffh);font-size:1.1rem;font-weight:900;letter-spacing:-.3px}
+.cvp-role{font-size:.72rem;color:#c9a84c;margin-top:3px;font-weight:600}
+.cvp-contact{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-top:8px;
+}
+.cvp-c-item{font-size:.62rem;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:4px}
+.cvp-body{padding:18px 22px}
+.cvp-section{margin-bottom:14px}
+.cvp-sh{
+  font-size:.62rem;font-weight:800;letter-spacing:1.8px;
+  text-transform:uppercase;color:#1a1e2e;
+  border-bottom:2px solid #c9a84c;
+  padding-bottom:3px;margin-bottom:10px;
+}
+.cvp-para{font-size:.66rem;color:#444;line-height:1.65}
+.cvp-entry{margin-bottom:10px}
+.cvp-et{font-size:.72rem;font-weight:700;color:#1a1e2e}
+.cvp-es{font-size:.62rem;color:#888;margin:1px 0}
+.cvp-ed{font-size:.62rem;color:#555;line-height:1.6}
+.cvp-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.cvp-chip{
+  background:rgba(201,168,76,.12);color:#7a5e1e;
+  font-size:.6rem;font-weight:700;
+  padding:2px 8px;border-radius:100px;
+  border:1px solid rgba(201,168,76,.25);
+}
+.cvp-placeholder{
+  height:8px;background:#f0f0f0;border-radius:4px;
+  margin-bottom:5px;
+}
+.cvp-placeholder.short{width:55%}
+.cvp-placeholder.med{width:75%}
+.cvp-placeholder.long{width:90%}
+
+/* ATS Score bar */
+.ats-bar-wrap{
+  width:100%;max-width:420px;margin-top:16px;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px 16px;
+}
+.ats-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ats-lbl{font-size:.74rem;font-weight:700;color:var(--gray-2)}
+.ats-pct{font-size:.78rem;font-weight:800;color:var(--gold)}
+.ats-track{
+  height:5px;background:rgba(255,255,255,.06);
+  border-radius:3px;overflow:hidden;
+}
+.ats-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--gold-dk),var(--gold));
+  transition:width .7s var(--ease);
+}
+.ats-tips{
+  display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;
+}
+.ats-tip{
+  font-size:.64rem;color:var(--gray-3);
+  background:rgba(255,255,255,.04);border-radius:100px;
+  padding:2px 9px;border:1px solid var(--border);
+}
+.ats-tip.ok{color:var(--success);border-color:rgba(39,174,96,.2)}
+
+/* ════════════════════════════════════════════
+   SUCCESS OVERLAY
+════════════════════════════════════════════ */
+.success-overlay{
+  position:fixed;inset:0;z-index:2000;
+  background:rgba(12,12,14,.95);
+  backdrop-filter:blur(10px);
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:24px;
+}
+.success-overlay.show{display:flex}
+.success-box{
+  background:var(--bg-card);border:1px solid var(--border-g);
+  border-radius:24px;padding:clamp(2rem,4vw,3rem);
+  max-width:480px;width:100%;text-align:center;
+}
+.success-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(39,174,96,.15);border:2px solid rgba(39,174,96,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;margin:0 auto 20px;
+  animation:popIn .5s var(--spring) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.success-title{font-family:var(--ffh);font-size:1.6rem;font-weight:900;margin-bottom:10px}
+.success-sub{color:var(--gray-2);font-size:.9rem;line-height:1.75;margin-bottom:28px}
+.success-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════ */
+@media(max-width:900px){
+  .builder-page{grid-template-columns:1fr}
+  .preview-panel{display:none}
+  .nav-links{display:none}
+  .nav-right .btn-o{display:none}
+  .burger{display:flex}
+}
+@media(max-width:640px){
+  .form-grid{grid-template-columns:1fr}
+  .form-grid .full{grid-column:auto}
+  .pricing-row{grid-template-columns:1fr}
+  .review-grid{grid-template-columns:1fr}
+  .lang-row{grid-template-columns:1fr 1fr auto}
+  .form-footer{flex-wrap:wrap;gap:10px}
+  .auto-save{display:none}
+  .nav-btn{padding:11px 18px;font-size:.84rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ── CURSOR ──────────────────────────── -->
+<div id="cur" aria-hidden="true"></div>
+
+<!-- ════════════════════════════════════════
+     NAV
+════════════════════════════════════════ -->
+<header>
+<nav class="nav" id="nav" aria-label="القائمة الرئيسية">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Pro<em>CV</em><sup>BETA</sup></a>
+    <ul class="nav-links">
+      <li><a href="index.html">الرئيسية</a></li>
+      <li><a href="templates.html">القوالب</a></li>
+      <li><a href="builder.html" class="active">الصانع</a></li>
+      <li><a href="pricing.html">الأسعار</a></li>
+      <li><a href="blog.html">المدوّنة</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="login.html" class="btn btn-o btn-sm">الدخول</a>
+      <button class="burger" id="burger" aria-label="القائمة" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="drawer" id="drawer">
+    <a href="index.html">الرئيسية</a>
+    <a href="templates.html">القوالب</a>
+    <a href="builder.html">الصانع</a>
+    <a href="pricing.html">الأسعار</a>
+    <a href="blog.html">المدوّنة</a>
+  </div>
+</nav>
+</header>
+
+<!-- ════════════════════════════════════════
+     BUILDER PAGE
+════════════════════════════════════════ -->
+<div class="builder-page">
+
+  <!-- ══ LEFT — FORM PANEL ══════════════ -->
+  <div class="form-panel" id="form-panel">
+
+    <!-- PROGRESS -->
+    <div class="progress-wrap">
+      <div class="step-counter">
+        <span class="sc-badge" id="sc-badge">الخطوة 1 من 5</span>
+        <span class="sc-pct" id="sc-pct">0% مكتمل</span>
+      </div>
+
+      <!-- Step dots -->
+      <div class="progress-labels" role="list" aria-label="خطوات الإنشاء">
+        <div class="prog-lbl active" id="dot-1" role="listitem">
+          <div class="step-dot"><span>1</span></div>
+          <span class="lbl-txt">شخصي</span>
+        </div>
+        <div class="prog-lbl" id="dot-2" role="listitem">
+          <div class="step-dot"><span>2</span></div>
+          <span class="lbl-txt">خبرات</span>
+        </div>
+        <div class="prog-lbl" id="dot-3" role="listitem">
+          <div class="step-dot"><span>3</span></div>
+          <span class="lbl-txt">تعليم</span>
+        </div>
+        <div class="prog-lbl" id="dot-4" role="listitem">
+          <div class="step-dot"><span>4</span></div>
+          <span class="lbl-txt">مهارات</span>
+        </div>
+        <div class="prog-lbl" id="dot-5" role="listitem">
+          <div class="step-dot"><span>5</span></div>
+          <span class="lbl-txt">مراجعة</span>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill" style="width:0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+
+    <!-- FORM BODY -->
+    <div class="form-body" id="form-body">
+
+      <!-- ══════════════════════════════
+           STEP 1 — PERSONAL INFO
+      ══════════════════════════════ -->
+      <div class="step-panel active" id="step-1">
+        <div class="step-head">
+          <div class="step-num-badge">✦ الخطوة 1 من 5</div>
+          <h2 class="step-title">معلوماتك الشخصية</h2>
+          <p class="step-sub">ابدأ بالأساسيات — هذه المعلومات ستظهر في رأس سيرتك الذاتية.</p>
+        </div>
+
+        <div class="hint-box">
+          <span class="hi">💡</span>
+          <span>استخدم اسمك الرسمي الكامل كما يظهر في وثائقك الرسمية لتجنب أي لبس لدى أصحاب العمل.</span>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="f-fname">الاسم الأول <span class="req">*</span></label>
+            <input class="form-input" id="f-fname" type="text" placeholder="أحمد" autocomplete="given-name" oninput="syncPreview()">
+            <span class="err-msg" id="err-fname">الاسم الأول مطلوب</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f-lname">اسم العائلة <span class="req">*</span></label>
+            <input class="form-input" id="f-lname" type="text" placeholder="العلي" autocomplete="family-name" oninput="syncPreview()">
+            <span class="err-msg" id="err-lname">اسم العائلة مطلوب</span>
+          </div>
+          <div class="form-group full">
+            <label class="form-label" for="f-jobtitle">المسمى الوظيفي <span class="req">*</span></label>
+            <input class="form-input" id="f-jobtitle" type="text" placeholder="مهندس برمجيات أول" oninput="syncPreview()">
+            <span class="err-msg" id="err-jobtitle">المسمى الوظيفي مطلوب</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f-email">البريد الإلكتروني <span class="req">*</span></label>
+            <input class="form-input" id="f-email" type="email" placeholder="ahmed@email.com" autocomplete="email" oninput="syncPreview()">
+            <span class="err-msg" id="err-email">بريد إلكتروني صحيح مطلوب</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f-phone">رقم الهاتف</label>
+            <input class="form-input" id="f-phone" type="tel" placeholder="+966 5X XXX XXXX" autocomplete="tel" oninput="syncPreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f-city">المدينة / الدولة</label>
+            <input class="form-input" id="f-city" type="text" placeholder="الرياض، المملكة العربية السعودية" oninput="syncPreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f-linkedin">LinkedIn (اختياري)</label>
+            <input class="form-input" id="f-linkedin" type="url" placeholder="linkedin.com/in/username">
+          </div>
+          <div class="form-group full">
+            <label class="form-label" for="f-summary">الملخص المهني <span class="req">*</span></label>
+            <textarea class="form-textarea" id="f-summary" placeholder="مهندس برمجيات متخصص بخبرة تتجاوز 5 سنوات في تطوير تطبيقات الويب والحلول السحابية. أسعى دائماً لتقديم حلول تقنية مبتكرة تحسّن تجربة المستخدم..." maxlength="500" oninput="updateChar(this,'sc-summary',500);syncPreview()"></textarea>
+            <div class="char-count" id="sc-summary">0 / 500</div>
+            <span class="err-msg" id="err-summary">الملخص المهني مطلوب</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           STEP 2 — EXPERIENCE
+      ══════════════════════════════ -->
+      <div class="step-panel" id="step-2">
+        <div class="step-head">
+          <div class="step-num-badge">✦ الخطوة 2 من 5</div>
+          <h2 class="step-title">الخبرات المهنية</h2>
+          <p class="step-sub">أضف تجاربك المهنية من الأحدث للأقدم. استخدم أرقاماً وإنجازات قابلة للقياس.</p>
+        </div>
+        <div class="hint-box">
+          <span class="hi">🎯</span>
+          <span>ابدأ كل نقطة بفعل إنجاز قوي: قاد، نفّذ، خفّض، رفع، طوّر... واذكر النتيجة بالأرقام عند الإمكان.</span>
+        </div>
+        <div class="entries-list" id="exp-list"></div>
+        <button class="add-btn" onclick="addExp()" aria-label="إضافة خبرة مهنية جديدة">
+          <span style="font-size:1.1rem">＋</span> إضافة خبرة مهنية
+        </button>
+      </div>
+
+      <!-- ══════════════════════════════
+           STEP 3 — EDUCATION
+      ══════════════════════════════ -->
+      <div class="step-panel" id="step-3">
+        <div class="step-head">
+          <div class="step-num-badge">✦ الخطوة 3 من 5</div>
+          <h2 class="step-title">التعليم والشهادات</h2>
+          <p class="step-sub">أضف مؤهلاتك الأكاديمية والشهادات المهنية بالترتيب الزمني من الأحدث.</p>
+        </div>
+        <div class="hint-box">
+          <span class="hi">📚</span>
+          <span>أضف الشهادات المهنية (PMP، AWS، CPA...) كإدخال تعليمي منفصل — إنها ترفع قيمة سيرتك كثيراً.</span>
+        </div>
+        <div class="entries-list" id="edu-list"></div>
+        <button class="add-btn" onclick="addEdu()" aria-label="إضافة مؤهل تعليمي">
+          <span style="font-size:1.1rem">＋</span> إضافة تعليم أو شهادة
+        </button>
+      </div>
+
+      <!-- ══════════════════════════════
+           STEP 4 — SKILLS & LANGUAGES
+      ══════════════════════════════ -->
+      <div class="step-panel" id="step-4">
+        <div class="step-head">
+          <div class="step-num-badge">✦ الخطوة 4 من 5</div>
+          <h2 class="step-title">المهارات واللغات</h2>
+          <p class="step-sub">أضف مهاراتك التقنية والشخصية ولغاتك — هذه الكلمات تُمكّن نظام ATS من العثور عليك.</p>
+        </div>
+
+        <!-- Tech Skills -->
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">المهارات التقنية <span class="req">*</span></label>
+          <div class="skills-tags" id="tech-tags-wrap" onclick="document.getElementById('tech-inp').focus()">
+            <input class="skills-input-field" id="tech-inp" placeholder="اكتب مهارة واضغط Enter أو فاصلة..." oninput="handleSkillInput(this,'tech')" onkeydown="handleSkillKey(event,this,'tech')">
+          </div>
+          <div class="skills-hint">💡 مثال: Python، React، AWS، إدارة المشاريع</div>
+        </div>
+
+        <!-- Soft Skills -->
+        <div class="form-group" style="margin-bottom:24px">
+          <label class="form-label">المهارات الشخصية</label>
+          <div class="skills-tags" id="soft-tags-wrap" onclick="document.getElementById('soft-inp').focus()">
+            <input class="skills-input-field" id="soft-inp" placeholder="قيادة، تواصل، حل مشكلات..." oninput="handleSkillInput(this,'soft')" onkeydown="handleSkillKey(event,this,'soft')">
+          </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="form-group col1" style="margin-bottom:8px">
+          <label class="form-label">اللغات</label>
+        </div>
+        <div class="lang-rows" id="lang-rows"></div>
+        <button class="add-btn" onclick="addLang()" style="margin-bottom:20px">
+          <span style="font-size:1.1rem">＋</span> إضافة لغة
+        </button>
+
+        <!-- Interests -->
+        <div class="form-group">
+          <label class="form-label" for="f-interests">الاهتمامات (اختياري)</label>
+          <input class="form-input" id="f-interests" type="text" placeholder="القراءة، ريادة الأعمال، كرة القدم...">
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           STEP 5 — REVIEW & PAYMENT
+      ══════════════════════════════ -->
+      <div class="step-panel" id="step-5">
+        <div class="step-head">
+          <div class="step-num-badge">✦ الخطوة 5 من 5</div>
+          <h2 class="step-title">مراجعة وإرسال</h2>
+          <p class="step-sub">راجع بياناتك، اختر خطتك، وسنقوم بتحسين سيرتك الذاتية لتتوافق مع أنظمة ATS.</p>
+        </div>
+
+        <!-- Data summary -->
+        <div id="review-content"></div>
+
+        <!-- Pricing -->
+        <div class="review-section">
+          <div class="review-section-title">💳 اختر خطتك</div>
+          <div class="pricing-row" id="pricing-row">
+            <div class="price-card" onclick="selectPlan(this,'free')" data-plan="free">
+              <div class="pc-badge">مجاني</div>
+              <div class="pc-price">0</div>
+              <div class="pc-period">ر.س / دائماً مجاني</div>
+              <div class="pc-feats">
+                <div class="pc-feat">قالب واحد أساسي</div>
+                <div class="pc-feat">تحميل PDF</div>
+                <div class="pc-feat">توافق ATS أساسي</div>
+              </div>
+            </div>
+            <div class="price-card selected" onclick="selectPlan(this,'pro')" data-plan="pro">
+              <div class="pc-popular">الأكثر شيوعاً</div>
+              <div class="pc-badge">برو</div>
+              <div class="pc-price">29</div>
+              <div class="pc-period">ر.س / دفعة واحدة</div>
+              <div class="pc-feats">
+                <div class="pc-feat">جميع القوالب المميزة</div>
+                <div class="pc-feat">تحسين AI متقدم</div>
+                <div class="pc-feat">توافق ATS 100%</div>
+                <div class="pc-feat">مراجعة خبير بشرية</div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:.75rem;color:var(--gray-3);text-align:center">
+            ✦ بدون اشتراك · دفعة واحدة · ضمان استرداد 7 أيام
+          </p>
+        </div>
+
+      </div>
+      <!-- END STEPS -->
+
+    </div><!-- /form-body -->
+
+    <!-- FORM FOOTER NAV -->
+    <div class="form-footer">
+      <button class="nav-btn btn-prev" id="btn-prev" onclick="prevStep()" disabled aria-label="الخطوة السابقة">
+        ← السابق
+      </button>
+      <div class="auto-save">
+        <span class="save-dot"></span>
+        حُفظ تلقائياً
+      </div>
+      <button class="nav-btn btn-next" id="btn-next" onclick="nextStep()" aria-label="الخطوة التالية">
+        التالي ←
+      </button>
+    </div>
+
+  </div><!-- /form-panel -->
+
+  <!-- ══ RIGHT — LIVE PREVIEW ═══════════ -->
+  <aside class="preview-panel" aria-label="معاينة السيرة الذاتية">
+    <div class="preview-header">
+      <span class="preview-title">معاينة مباشرة</span>
+      <div class="preview-badges">
+        <span class="p-badge ats">✓ ATS</span>
+        <span class="p-badge live"><span class="live-dot"></span>مباشر</span>
+      </div>
+    </div>
+
+    <div class="cv-paper" id="cv-paper">
+      <div class="cvp-head">
+        <div class="cvp-avatar" id="pv-avatar">أع</div>
+        <div>
+          <div class="cvp-name" id="pv-name">الاسم الكامل</div>
+          <div class="cvp-role" id="pv-role">المسمى الوظيفي</div>
+          <div class="cvp-contact">
+            <span class="cvp-c-item" id="pv-email">📧 email@example.com</span>
+            <span class="cvp-c-item" id="pv-phone" style="display:none">📞 —</span>
+            <span class="cvp-c-item" id="pv-city" style="display:none">📍 —</span>
+          </div>
+        </div>
+      </div>
+      <div class="cvp-body">
+        <div class="cvp-section" id="pv-summary-sec">
+          <div class="cvp-sh">الملخص المهني</div>
+          <p class="cvp-para" id="pv-summary">سيظهر ملخصك المهني هنا بعد الكتابة...</p>
+        </div>
+        <div class="cvp-section" id="pv-exp-sec">
+          <div class="cvp-sh">الخبرات المهنية</div>
+          <div id="pv-exp-body">
+            <div class="cvp-placeholder long"></div>
+            <div class="cvp-placeholder med"></div>
+            <div class="cvp-placeholder short"></div>
+          </div>
+        </div>
+        <div class="cvp-section" id="pv-edu-sec">
+          <div class="cvp-sh">التعليم</div>
+          <div id="pv-edu-body">
+            <div class="cvp-placeholder med"></div>
+            <div class="cvp-placeholder short"></div>
+          </div>
+        </div>
+        <div class="cvp-section" id="pv-skills-sec">
+          <div class="cvp-sh">المهارات</div>
+          <div class="cvp-chips" id="pv-chips">
+            <span class="cvp-chip" style="opacity:.3">مهارة 1</span>
+            <span class="cvp-chip" style="opacity:.3">مهارة 2</span>
+            <span class="cvp-chip" style="opacity:.3">مهارة 3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATS Score -->
+    <div class="ats-bar-wrap">
+      <div class="ats-row">
+        <span class="ats-lbl">نسبة توافق ATS</span>
+        <span class="ats-pct" id="ats-pct">0%</span>
+      </div>
+      <div class="ats-track">
+        <div class="ats-fill" id="ats-fill" style="width:0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <div class="ats-tips" id="ats-tips">
+        <span class="ats-tip">أضف اسمك</span>
+        <span class="ats-tip">أضف ملخصاً</span>
+        <span class="ats-tip">أضف خبرة</span>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /builder-page -->
+
+<!-- ════════════════════════════════════════
+     SUCCESS OVERLAY
+════════════════════════════════════════ -->
+<div class="success-overlay" id="success-overlay" role="dialog" aria-modal="true" aria-label="تم الإرسال بنجاح">
+  <div class="success-box">
+    <div class="success-icon">✅</div>
+    <h2 class="success-title">تم استلام طلبك!</h2>
+    <p class="success-sub">سيرتك الذاتية الآن في طريقها للمراجعة وتحسين ATS. ستصلك نسختك النهائية خلال 24 ساعة على بريدك الإلكتروني.</p>
+    <div class="success-actions">
+      <a href="index.html" class="btn btn-o">العودة للرئيسية</a>
+      <a href="templates.html" class="btn btn-g">استعرض القوالب</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── CURSOR ──────────────────────────── */
+(function(){
+  const c=document.getElementById('cur');
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function t(){c.style.transform=`translate(${mx-4.5}px,${my-4.5}px)`;requestAnimationFrame(t);})();
+  document.querySelectorAll('a,button,input,textarea,select,[onclick]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>c.classList.add('big'));
+    el.addEventListener('mouseleave',()=>c.classList.remove('big'));
+  });
+  window.addEventListener('touchstart',()=>c.style.display='none',{once:true});
+})();
+
+/* ── NAV ─────────────────────────────── */
+(function(){
+  const nav=document.getElementById('nav');
+  const burger=document.getElementById('burger');
+  const drawer=document.getElementById('drawer');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>30),{passive:true});
+  burger.addEventListener('click',()=>{
+    const o=drawer.classList.toggle('open');
+    burger.classList.toggle('x',o);
+    burger.setAttribute('aria-expanded',o);
+  });
+  drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+    drawer.classList.remove('open');burger.classList.remove('x');burger.setAttribute('aria-expanded','false');
+  }));
+})();
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+const state={
+  step:1,
+  totalSteps:5,
+  personal:{fname:'',lname:'',jobtitle:'',email:'',phone:'',city:'',summary:''},
+  experiences:[],
+  educations:[],
+  techSkills:[],
+  softSkills:[],
+  languages:[],
+  selectedPlan:'pro',
+};
+
+/* ════════════════════════════════════════
+   STEP NAVIGATION
+════════════════════════════════════════ */
+function goToStep(target,dir='next'){
+  const current=document.getElementById(`step-${state.step}`);
+  current.classList.remove('active');
+  current.classList.add('leaving');
+  setTimeout(()=>current.classList.remove('leaving'),300);
+
+  state.step=target;
+
+  const next=document.getElementById(`step-${state.step}`);
+  next.classList.remove('rev-in');
+  if(dir==='prev') next.classList.add('rev-in');
+  next.classList.add('active');
+
+  updateProgress();
+  updateNavButtons();
+  syncReview();
+  document.getElementById('form-body').scrollTo({top:0,behavior:'smooth'});
+
+  // Initialize lists if empty
+  if(state.step===2 && state.experiences.length===0) addExp();
+  if(state.step===3 && state.educations.length===0) addEdu();
+  if(state.step===4 && state.languages.length===0) addLang();
+}
+
+function nextStep(){
+  if(!validateStep(state.step)) return;
+  collectStep(state.step);
+  if(state.step<state.totalSteps) goToStep(state.step+1,'next');
+  else submitForm();
+}
+
+function prevStep(){
+  collectStep(state.step);
+  if(state.step>1) goToStep(state.step-1,'prev');
+}
+
+function updateProgress(){
+  const pct=Math.round(((state.step-1)/state.totalSteps)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-fill').setAttribute('aria-valuenow',pct);
+  document.getElementById('sc-badge').textContent=`الخطوة ${state.step} من ${state.totalSteps}`;
+  document.getElementById('sc-pct').textContent=pct+'% مكتمل';
+
+  for(let i=1;i<=state.totalSteps;i++){
+    const dot=document.getElementById(`dot-${i}`);
+    dot.classList.remove('active','done');
+    if(i<state.step) dot.classList.add('done');
+    else if(i===state.step) dot.classList.add('active');
+  }
+}
+
+function updateNavButtons(){
+  const prev=document.getElementById('btn-prev');
+  const next=document.getElementById('btn-next');
+  prev.disabled=state.step===1;
+  if(state.step===state.totalSteps){
+    next.textContent='إرسال الطلب ✓';
+    next.className='nav-btn btn-submit';
+  } else {
+    next.textContent='التالي ←';
+    next.className='nav-btn btn-next';
+  }
+}
+
+/* ════════════════════════════════════════
+   VALIDATION
+════════════════════════════════════════ */
+function validateStep(s){
+  let ok=true;
+  if(s===1){
+    ['fname','lname','jobtitle','email','summary'].forEach(f=>{
+      const el=document.getElementById('f-'+f);
+      const err=document.getElementById('err-'+f);
+      let v=false;
+      if(f==='email') v=el&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+      else v=el&&el.value.trim().length>0;
+      el&&el.classList.toggle('error',!v);
+      if(err) err.classList.toggle('show',!v);
+      if(!v) ok=false;
+    });
+  }
+  if(s===4){
+    ok=state.techSkills.length>0;
+    const wrap=document.getElementById('tech-tags-wrap');
+    if(wrap) wrap.style.borderColor=ok?'':'var(--error)';
+    if(!ok) setTimeout(()=>{if(wrap)wrap.style.borderColor='';},2000);
+  }
+  return ok;
+}
+
+/* ════════════════════════════════════════
+   DATA COLLECTION
+════════════════════════════════════════ */
+function collectStep(s){
+  if(s===1){
+    ['fname','lname','jobtitle','email','phone','city','summary'].forEach(f=>{
+      const el=document.getElementById('f-'+f);
+      if(el) state.personal[f]=el.value.trim();
+    });
+  }
+}
+
+/* ════════════════════════════════════════
+   EXPERIENCE ENTRIES
+════════════════════════════════════════ */
+let expCount=0;
+function addExp(){
+  expCount++;
+  const id=`exp-${expCount}`;
+  state.experiences.push({id,title:'',company:'',location:'',from:'',to:'',current:false,desc:''});
+  renderExpList();
+}
+function removeExp(id){
+  state.experiences=state.experiences.filter(e=>e.id!==id);
+  renderExpList();
+}
+function renderExpList(){
+  const list=document.getElementById('exp-list');
+  list.innerHTML=state.experiences.map((e,i)=>`
+    <div class="entry-card" id="card-${e.id}">
+      <div class="entry-card-head">
+        <div class="entry-card-title">
+          <span>💼</span> خبرة ${i+1}
+          ${e.title?`<span class="entry-badge">${e.title}</span>`:''}
+        </div>
+        ${state.experiences.length>1?`<button class="entry-remove" onclick="removeExp('${e.id}')" aria-label="حذف الخبرة">✕</button>`:''}
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-title">المسمى الوظيفي <span class="req">*</span></label>
+          <input class="form-input" id="${e.id}-title" value="${escHtml(e.title)}" placeholder="مطور برمجيات أول" oninput="updateExp('${e.id}','title',this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-company">الشركة <span class="req">*</span></label>
+          <input class="form-input" id="${e.id}-company" value="${escHtml(e.company)}" placeholder="شركة تقنيات المستقبل" oninput="updateExp('${e.id}','company',this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-from">من</label>
+          <input class="form-input" id="${e.id}-from" type="month" value="${e.from}" oninput="updateExp('${e.id}','from',this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-to">إلى</label>
+          <input class="form-input" id="${e.id}-to" type="month" value="${e.to}" ${e.current?'disabled':''} oninput="updateExp('${e.id}','to',this.value)">
+        </div>
+        <div class="form-group full" style="flex-direction:row;align-items:center;gap:10px;margin-top:-4px">
+          <input type="checkbox" id="${e.id}-curr" ${e.current?'checked':''} onchange="toggleCurrent('${e.id}',this.checked)" style="accent-color:var(--gold);width:15px;height:15px">
+          <label for="${e.id}-curr" style="font-size:.82rem;color:var(--gray-2)">وظيفتي الحالية</label>
+        </div>
+        <div class="form-group full">
+          <label class="form-label" for="${e.id}-desc">الإنجازات والمسؤوليات</label>
+          <textarea class="form-textarea" id="${e.id}-desc" placeholder="• قدت فريقاً من 5 مطورين لتسليم مشروع بقيمة 2M$&#10;• خفّضت وقت التحميل بنسبة 40% من خلال تحسينات الأداء&#10;• طوّرت نظاماً جديداً رفع إنتاجية الفريق 30%" oninput="updateExp('${e.id}','desc',this.value)">${escHtml(e.desc)}</textarea>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  syncPreview();
+}
+function updateExp(id,field,val){
+  const e=state.experiences.find(x=>x.id===id);
+  if(e){
+    e[field]=val;
+    // Update badge
+    const card=document.getElementById(`card-${id}`);
+    if(card){
+      const badge=card.querySelector('.entry-badge');
+      if(badge&&field==='title') badge.textContent=val||'';
+      if(!badge&&field==='title'&&val){
+        const head=card.querySelector('.entry-card-title');
+        const b=document.createElement('span');
+        b.className='entry-badge';b.textContent=val;
+        head.appendChild(b);
+      }
+    }
+    syncPreview();
+  }
+}
+function toggleCurrent(id,checked){
+  const e=state.experiences.find(x=>x.id===id);
+  if(e){
+    e.current=checked;
+    const toEl=document.getElementById(`${id}-to`);
+    if(toEl){toEl.disabled=checked;if(checked)toEl.value='';}
+    syncPreview();
+  }
+}
+
+/* ════════════════════════════════════════
+   EDUCATION ENTRIES
+════════════════════════════════════════ */
+let eduCount=0;
+function addEdu(){
+  eduCount++;
+  const id=`edu-${eduCount}`;
+  state.educations.push({id,degree:'',school:'',field:'',from:'',to:'',grade:''});
+  renderEduList();
+}
+function removeEdu(id){
+  state.educations=state.educations.filter(e=>e.id!==id);
+  renderEduList();
+}
+function renderEduList(){
+  const list=document.getElementById('edu-list');
+  list.innerHTML=state.educations.map((e,i)=>`
+    <div class="entry-card">
+      <div class="entry-card-head">
+        <div class="entry-card-title">
+          <span>🎓</span> مؤهل ${i+1}
+          ${e.degree?`<span class="entry-badge">${e.degree}</span>`:''}
+        </div>
+        ${state.educations.length>1?`<button class="entry-remove" onclick="removeEdu('${e.id}')" aria-label="حذف المؤهل">✕</button>`:''}
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-deg">الدرجة / الشهادة <span class="req">*</span></label>
+          <input class="form-input" id="${e.id}-deg" value="${escHtml(e.degree)}" placeholder="بكالوريوس، ماجستير، دكتوراه..." oninput="updateEdu('${e.id}','degree',this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-sch">المؤسسة / الجامعة</label>
+          <input class="form-input" id="${e.id}-sch" value="${escHtml(e.school)}" placeholder="جامعة الملك عبدالله" oninput="updateEdu('${e.id}','school',this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-fld">التخصص</label>
+          <input class="form-input" id="${e.id}-fld" value="${escHtml(e.field)}" placeholder="هندسة الحاسب" oninput="updateEdu('${e.id}','field',this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-grd">المعدل / الدرجة</label>
+          <input class="form-input" id="${e.id}-grd" value="${escHtml(e.grade)}" placeholder="4.5/5 · ممتاز" oninput="updateEdu('${e.id}','grade',this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-fr">من</label>
+          <input class="form-input" id="${e.id}-fr" type="month" value="${e.from}" oninput="updateEdu('${e.id}','from',this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="${e.id}-to">إلى</label>
+          <input class="form-input" id="${e.id}-to" type="month" value="${e.to}" oninput="updateEdu('${e.id}','to',this.value)">
+        </div>
+      </div>
+    </div>
+  `).join('');
+  syncPreview();
+}
+function updateEdu(id,field,val){
+  const e=state.educations.find(x=>x.id===id);
+  if(e){e[field]=val;syncPreview();}
+}
+
+/* ════════════════════════════════════════
+   SKILLS
+════════════════════════════════════════ */
+function handleSkillKey(e,inp,type){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    addSkill(inp.value.trim(),type);
+    inp.value='';
+  }
+  if(e.key==='Backspace'&&inp.value===''){ removeLastSkill(type); }
+}
+function handleSkillInput(inp,type){
+  const v=inp.value;
+  if(v.endsWith(',')){ addSkill(v.slice(0,-1).trim(),type); inp.value=''; }
+}
+function addSkill(val,type){
+  if(!val) return;
+  const arr=type==='tech'?state.techSkills:state.softSkills;
+  if(arr.includes(val)) return;
+  arr.push(val);
+  renderSkills(type);
+  syncPreview();
+}
+function removeLastSkill(type){
+  const arr=type==='tech'?state.techSkills:state.softSkills;
+  arr.pop();
+  renderSkills(type);
+  syncPreview();
+}
+function removeSkill(val,type){
+  if(type==='tech') state.techSkills=state.techSkills.filter(s=>s!==val);
+  else state.softSkills=state.softSkills.filter(s=>s!==val);
+  renderSkills(type);
+  syncPreview();
+}
+function renderSkills(type){
+  const wrap=document.getElementById(type+'-tags-wrap');
+  const inp=document.getElementById(type+'-inp');
+  const arr=type==='tech'?state.techSkills:state.softSkills;
+  // Remove old chips
+  wrap.querySelectorAll('.skill-chip').forEach(c=>c.remove());
+  arr.forEach(s=>{
+    const chip=document.createElement('span');
+    chip.className='skill-chip';
+    chip.innerHTML=`${escHtml(s)}<button class="chip-del" onclick="removeSkill('${escHtml(s)}','${type}')" aria-label="حذف ${escHtml(s)}">✕</button>`;
+    wrap.insertBefore(chip,inp);
+  });
+}
+
+/* ════════════════════════════════════════
+   LANGUAGES
+════════════════════════════════════════ */
+const LEVELS=['أصلية','متقدم C1','متوسط B2','مبتدئ A2'];
+let langCount=0;
+function addLang(){
+  langCount++;
+  const id=`lang-${langCount}`;
+  state.languages.push({id,name:'',level:LEVELS[0]});
+  renderLangs();
+}
+function removeLang(id){
+  state.languages=state.languages.filter(l=>l.id!==id);
+  renderLangs();
+}
+function updateLang(id,field,val){
+  const l=state.languages.find(x=>x.id===id);
+  if(l) l[field]=val;
+}
+function renderLangs(){
+  const rows=document.getElementById('lang-rows');
+  rows.innerHTML=state.languages.map(l=>`
+    <div class="lang-row">
+      <input class="form-input" value="${escHtml(l.name)}" placeholder="العربية" style="height:42px" oninput="updateLang('${l.id}','name',this.value)">
+      <select class="form-select" onchange="updateLang('${l.id}','level',this.value)" style="height:42px">
+        ${LEVELS.map(lv=>`<option value="${lv}" ${l.level===lv?'selected':''}>${lv}</option>`).join('')}
+      </select>
+      ${state.languages.length>1
+        ?`<button class="lang-del" onclick="removeLang('${l.id}')" aria-label="حذف اللغة">✕</button>`
+        :`<div style="width:34px"></div>`}
+    </div>
+  `).join('');
+}
+
+/* ════════════════════════════════════════
+   LIVE PREVIEW SYNC
+════════════════════════════════════════ */
+function syncPreview(){
+  collectStep(1);
+  const p=state.personal;
+  const initials=((p.fname||'')[0]||'')+ ((p.lname||'')[0]||'');
+  document.getElementById('pv-avatar').textContent=initials||'—';
+  document.getElementById('pv-name').textContent=[p.fname,p.lname].filter(Boolean).join(' ')||'الاسم الكامل';
+  document.getElementById('pv-role').textContent=p.jobtitle||'المسمى الوظيفي';
+  document.getElementById('pv-summary').textContent=p.summary||'سيظهر ملخصك المهني هنا...';
+
+  const emailEl=document.getElementById('pv-email');
+  emailEl.textContent=p.email?'📧 '+p.email:'📧 email@example.com';
+
+  const phoneEl=document.getElementById('pv-phone');
+  phoneEl.style.display=p.phone?'':'none';
+  phoneEl.textContent=p.phone?'📞 '+p.phone:'';
+
+  const cityEl=document.getElementById('pv-city');
+  cityEl.style.display=p.city?'':'none';
+  cityEl.textContent=p.city?'📍 '+p.city:'';
+
+  // Experience
+  const expBody=document.getElementById('pv-exp-body');
+  if(state.experiences.length&&(state.experiences[0].title||state.experiences[0].company)){
+    expBody.innerHTML=state.experiences.slice(0,2).map(e=>`
+      <div class="cvp-entry">
+        <div class="cvp-et">${escHtml(e.title||'—')} — ${escHtml(e.company||'—')}</div>
+        <div class="cvp-es">${e.from?formatMonth(e.from):''} ${e.from&&(e.to||e.current)?'—':''} ${e.current?'الحاضر':e.to?formatMonth(e.to):''}</div>
+        ${e.desc?`<div class="cvp-ed">${escHtml(e.desc.slice(0,100))}${e.desc.length>100?'...':''}</div>`:''}
+      </div>
+    `).join('');
+  } else {
+    expBody.innerHTML='<div class="cvp-placeholder long"></div><div class="cvp-placeholder med"></div><div class="cvp-placeholder short"></div>';
+  }
+
+  // Education
+  const eduBody=document.getElementById('pv-edu-body');
+  if(state.educations.length&&(state.educations[0].degree||state.educations[0].school)){
+    eduBody.innerHTML=state.educations.slice(0,2).map(e=>`
+      <div class="cvp-entry">
+        <div class="cvp-et">${escHtml(e.degree||'')} ${e.field?`— ${escHtml(e.field)}`:''}</div>
+        <div class="cvp-es">${escHtml(e.school||'')} ${e.grade?`· ${escHtml(e.grade)}`:''}</div>
+      </div>
+    `).join('');
+  } else {
+    eduBody.innerHTML='<div class="cvp-placeholder med"></div><div class="cvp-placeholder short"></div>';
+  }
+
+  // Skills chips
+  const allSkills=[...state.techSkills,...state.softSkills].slice(0,8);
+  const chipsEl=document.getElementById('pv-chips');
+  if(allSkills.length){
+    chipsEl.innerHTML=allSkills.map(s=>`<span class="cvp-chip">${escHtml(s)}</span>`).join('');
+  } else {
+    chipsEl.innerHTML='<span class="cvp-chip" style="opacity:.3">مهارة 1</span><span class="cvp-chip" style="opacity:.3">مهارة 2</span><span class="cvp-chip" style="opacity:.3">مهارة 3</span>';
+  }
+
+  updateATS();
+}
+
+function formatMonth(m){
+  if(!m) return '';
+  const [y,mo]=m.split('-');
+  const names=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  return `${names[parseInt(mo,10)-1]||''} ${y}`;
+}
+
+/* ════════════════════════════════════════
+   ATS SCORE
+════════════════════════════════════════ */
+function updateATS(){
+  const p=state.personal;
+  const checks=[
+    {label:'الاسم',ok:!!(p.fname&&p.lname)},
+    {label:'المسمى الوظيفي',ok:!!p.jobtitle},
+    {label:'الملخص المهني',ok:p.summary&&p.summary.length>50},
+    {label:'البريد الإلكتروني',ok:!!p.email},
+    {label:'الخبرة',ok:state.experiences.some(e=>e.title&&e.company)},
+    {label:'التعليم',ok:state.educations.some(e=>e.degree)},
+    {label:'المهارات',ok:state.techSkills.length>=3},
+  ];
+  const done=checks.filter(c=>c.ok).length;
+  const pct=Math.round((done/checks.length)*100);
+  document.getElementById('ats-fill').style.width=pct+'%';
+  document.getElementById('ats-fill').setAttribute('aria-valuenow',pct);
+  document.getElementById('ats-pct').textContent=pct+'%';
+  const tips=document.getElementById('ats-tips');
+  tips.innerHTML=checks.map(c=>
+    `<span class="ats-tip${c.ok?' ok':''}">${c.ok?'✓':'+'} ${c.label}</span>`
+  ).join('');
+}
+
+/* ════════════════════════════════════════
+   REVIEW (STEP 5)
+════════════════════════════════════════ */
+function syncReview(){
+  if(state.step!==5) return;
+  const p=state.personal;
+  let html=`
+    <div class="review-section">
+      <div class="review-section-title">👤 المعلومات الشخصية</div>
+      <div class="review-grid">
+        <div class="review-item"><div class="review-key">الاسم الكامل</div><div class="review-val">${escHtml(p.fname+' '+p.lname)}</div></div>
+        <div class="review-item"><div class="review-key">المسمى الوظيفي</div><div class="review-val">${escHtml(p.jobtitle)}</div></div>
+        <div class="review-item"><div class="review-key">البريد الإلكتروني</div><div class="review-val">${escHtml(p.email)}</div></div>
+        ${p.phone?`<div class="review-item"><div class="review-key">الهاتف</div><div class="review-val">${escHtml(p.phone)}</div></div>`:''}
+        ${p.city?`<div class="review-item"><div class="review-key">الموقع</div><div class="review-val">${escHtml(p.city)}</div></div>`:''}
+      </div>
+    </div>`;
+
+  if(state.experiences.some(e=>e.title)){
+    html+=`<div class="review-section">
+      <div class="review-section-title">💼 الخبرات المهنية</div>
+      ${state.experiences.filter(e=>e.title).map(e=>`
+        <div class="review-item" style="margin-bottom:8px">
+          <div class="review-key">${escHtml(e.title)} — ${escHtml(e.company)}</div>
+          <div class="review-val">${e.from?formatMonth(e.from):''} ${e.current?'— الحاضر':e.to?`— ${formatMonth(e.to)}`:''}</div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+
+  if(state.educations.some(e=>e.degree)){
+    html+=`<div class="review-section">
+      <div class="review-section-title">🎓 التعليم والشهادات</div>
+      ${state.educations.filter(e=>e.degree).map(e=>`
+        <div class="review-item" style="margin-bottom:8px">
+          <div class="review-key">${escHtml(e.degree)}</div>
+          <div class="review-val">${escHtml(e.school)} ${e.grade?`· ${escHtml(e.grade)}`:''}</div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+
+  const allSkills=[...state.techSkills,...state.softSkills];
+  if(allSkills.length){
+    html+=`<div class="review-section">
+      <div class="review-section-title">🛠 المهارات واللغات</div>
+      <div class="review-tags">${allSkills.map(s=>`<span class="review-tag">${escHtml(s)}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  document.getElementById('review-content').innerHTML=html;
+}
+
+/* ════════════════════════════════════════
+   PLAN SELECTION
+════════════════════════════════════════ */
+function selectPlan(card,plan){
+  document.querySelectorAll('.price-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  state.selectedPlan=plan;
+}
+
+/* ════════════════════════════════════════
+   SUBMIT
+════════════════════════════════════════ */
+function submitForm(){
+  const btn=document.getElementById('btn-next');
+  btn.textContent='⏳ جاري الإرسال...';
+  btn.disabled=true;
+  setTimeout(()=>{
+    document.getElementById('success-overlay').classList.add('show');
+  },1800);
+}
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+function escHtml(str){
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function updateChar(el,countId,max){
+  const len=el.value.length;
+  document.getElementById(countId).textContent=`${len} / ${max}`;
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+updateProgress();
+updateNavButtons();
+addExp();
+addLang();
+syncPreview();
+</script>
+
+</body>
+</html>
