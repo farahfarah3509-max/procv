@@ -1,744 +1,1031 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ProCV — صانع السير الذاتية الذكي</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="ProCV — صانع السير الذاتية الاحترافية المتوافقة مع ATS"/>
+<meta name="theme-color" content="#0c0c0e"/>
+<title>ProCV — ابنِ سيرتك. اكسب المقابلة.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --ink: #000000;
-    --paper: #ffffff;
-    --gold: #ffffff;
-    --gold-light: #e8e8e8;
-    --gold-dark: #888888;
-    --slate: #111111;
-    --slate-light: #1a1a1a;
-    --muted: #888888;
-    --white: #ffffff;
-    --success: #ffffff;
-    --border: rgba(255,255,255,0.15);
+/* ═══════════════════════════════════════════════
+   TOKENS & RESET
+═══════════════════════════════════════════════ */
+:root{
+  --bg:       #0c0c0e;
+  --bg-2:     #111114;
+  --bg-3:     #16161a;
+  --bg-card:  #1a1a1f;
+  --border:   rgba(255,255,255,.07);
+  --border-g: rgba(201,168,76,.22);
+  --gold:     #c9a84c;
+  --gold-lt:  #e8d08a;
+  --gold-dk:  #8a6e2a;
+  --gold-glow:rgba(201,168,76,.14);
+  --white:    #ffffff;
+  --gray-1:   #e8e8ec;
+  --gray-2:   #9a9aac;
+  --gray-3:   #5a5a6e;
+  --success:  #27ae60;
+  --ff:       'Cairo',system-ui,sans-serif;
+  --ffh:      'Tajawal',system-ui,sans-serif;
+  --ease:     cubic-bezier(.4,0,.2,1);
+  --spring:   cubic-bezier(.34,1.56,.64,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px;-webkit-text-size-adjust:100%}
+body{font-family:var(--ff);background:var(--bg);color:var(--white);overflow-x:hidden;line-height:1.6;cursor:none}
+a,button,[role="button"]{cursor:none}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+img,svg{display:block;max-width:100%}
+button{font-family:inherit;border:none;background:none}
+input,textarea{font-family:inherit}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+::selection{background:rgba(201,168,76,.25);color:var(--white)}
+
+/* ═══════════════════════════════════════════════
+   CURSOR
+═══════════════════════════════════════════════ */
+#cur{
+  position:fixed;top:0;left:0;
+  width:9px;height:9px;
+  background:var(--gold);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  will-change:transform;
+  transition:width .18s var(--ease),height .18s var(--ease),opacity .18s;
+}
+#cur.big{width:22px;height:22px;opacity:.5;background:transparent;border:1.5px solid var(--gold)}
+
+/* ═══════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════ */
+.wrap{width:100%;max-width:1160px;margin-inline:auto;padding-inline:clamp(1.2rem,4vw,2.5rem)}
+
+.tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(201,168,76,.08);
+  border:1px solid var(--border-g);
+  color:var(--gold);font-size:.72rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  padding:5px 15px;border-radius:100px;
+  margin-bottom:20px;
+}
+.tag-dot{width:5px;height:5px;background:var(--gold);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.h2{
+  font-family:var(--ffh);font-weight:900;
+  font-size:clamp(2rem,4.5vw,3rem);
+  line-height:1.12;letter-spacing:-.5px;
+  margin-bottom:16px;
+}
+.lead{color:var(--gray-2);font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.85;max-width:520px}
+
+/* Reveal animation */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}
+.rv.d4{transition-delay:.4s}.rv.d5{transition-delay:.5s}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:13px 28px;border-radius:7px;
+  font-family:var(--ff);font-size:.94rem;font-weight:700;
+  transition:all .28s var(--ease);position:relative;overflow:hidden;
+  white-space:nowrap;
+}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.06);opacity:0;transition:opacity .2s}
+.btn:hover::after{opacity:1}
+.btn-g{background:var(--gold);color:#0c0c0e}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,168,76,.28)}
+.btn-o{border:1.5px solid rgba(255,255,255,.18);color:var(--white)}
+.btn-o:hover{border-color:var(--gold);color:var(--gold)}
+.btn-ghost{border:1.5px solid var(--border-g);color:var(--gold)}
+.btn-ghost:hover{background:var(--gold-glow)}
+.btn-sm{padding:9px 20px;font-size:.84rem}
+.btn-xs{padding:7px 16px;font-size:.78rem}
+
+/* Divider */
+.hdiv{height:1px;background:linear-gradient(90deg,transparent,var(--border-g),transparent);margin:0}
+
+/* ═══════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════ */
+.nav{
+  position:fixed;inset-block-start:0;inset-inline:0;
+  z-index:800;
+  background:rgba(12,12,14,.82);
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  border-bottom:1px solid var(--border);
+  transition:box-shadow .3s;
+}
+.nav.up{box-shadow:0 4px 32px rgba(0,0,0,.5)}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  height:72px;
+}
+.logo{font-family:var(--ffh);font-weight:900;font-size:1.5rem;letter-spacing:-.5px}
+.logo em{color:var(--gold);font-style:normal}
+.logo sup{font-size:.5rem;vertical-align:super;color:var(--gray-3);font-weight:700;letter-spacing:1px}
+
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{
+  color:var(--gray-2);font-size:.86rem;font-weight:600;
+  position:relative;transition:color .22s;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;right:0;
+  width:0;height:1.5px;background:var(--gold);
+  transition:width .28s var(--ease);
+}
+.nav-links a:hover,.nav-links a.active{color:var(--white)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+
+.nav-right{display:flex;align-items:center;gap:14px}
+
+/* Hamburger */
+.burger{
+  display:none;flex-direction:column;gap:5px;
+  padding:5px;background:none;border:none;
+}
+.burger span{
+  display:block;width:22px;height:1.8px;
+  background:var(--white);border-radius:2px;
+  transition:all .28s var(--ease);
+}
+.burger.x span:nth-child(1){transform:translateY(6.8px) rotate(45deg)}
+.burger.x span:nth-child(2){opacity:0;transform:scaleX(0)}
+.burger.x span:nth-child(3){transform:translateY(-6.8px) rotate(-45deg)}
+
+/* Mobile drawer */
+.drawer{
+  display:none;flex-direction:column;gap:4px;
+  background:var(--bg-2);border-top:1px solid var(--border);
+  padding:16px 20px 20px;
+}
+.drawer.show{display:flex}
+.drawer a{color:var(--gray-2);font-size:.95rem;font-weight:600;padding:10px 0;border-bottom:1px solid var(--border);transition:color .2s}
+.drawer a:last-child{border:none}
+.drawer a:hover{color:var(--gold)}
+
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+.hero{
+  min-height:100svh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:110px clamp(1.2rem,4vw,2.5rem) 80px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+
+/* Grid texture */
+.hero-tex{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(201,168,76,.032) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,168,76,.032) 1px,transparent 1px);
+  background-size:52px 52px;
+  mask-image:radial-gradient(ellipse 85% 85% at 50% 50%,black 20%,transparent 100%);
+}
+/* Radial glow */
+.hero-glow{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:800px;height:800px;
+  background:radial-gradient(ellipse,rgba(201,168,76,.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+/* Floating orbs */
+.orb{
+  position:absolute;border-radius:50%;pointer-events:none;
+  filter:blur(70px);animation:drift linear infinite;opacity:.12;
+}
+.orb1{width:500px;height:500px;background:var(--gold);top:-200px;right:-150px;animation-duration:28s}
+.orb2{width:400px;height:400px;background:#4a6cf7;bottom:-150px;left:-120px;animation-duration:22s}
+@keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,20px)}}
+
+.hero-content{position:relative;z-index:1;max-width:860px}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:.72rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold);
+  background:rgba(201,168,76,.08);
+  border:1px solid var(--border-g);
+  padding:6px 18px;border-radius:100px;
+  margin-bottom:32px;
+  animation:fup .9s var(--ease) both;
+}
+.pulse{
+  width:7px;height:7px;border-radius:50%;background:var(--gold);
+  animation:pulse 2.4s ease infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.8);opacity:.3}}
+
+.hero-title{
+  font-family:var(--ffh);font-weight:900;
+  font-size:clamp(3rem,8vw,6.2rem);
+  line-height:1.04;letter-spacing:-2px;
+  margin-bottom:10px;
+  animation:fup .9s var(--ease) .08s both;
+}
+.hero-title .line2{
+  display:block;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold-lt) 60%,var(--gold) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.hero-sub{
+  display:block;
+  font-size:clamp(1rem,2vw,1.15rem);
+  color:var(--gray-2);line-height:1.85;
+  max-width:580px;margin:20px auto 44px;
+  animation:fup .9s var(--ease) .16s both;
+}
+
+.hero-cta{
+  display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+  animation:fup .9s var(--ease) .24s both;
+}
+
+.hero-social{
+  display:flex;align-items:center;justify-content:center;gap:24px;
+  margin-top:72px;
+  animation:fup .9s var(--ease) .4s both;
+}
+.hs-divider{width:1px;height:32px;background:var(--border)}
+.hs-stat{text-align:center}
+.hs-num{font-family:var(--ffh);font-size:1.75rem;font-weight:900;color:var(--white);display:block;line-height:1}
+.hs-lbl{font-size:.74rem;color:var(--gray-3);margin-top:3px}
+
+/* Scroll indicator */
+.scroll-cue{
+  position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  color:var(--gray-3);font-size:.68rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  animation:fup 1s var(--ease) .7s both;
+}
+.scroll-line{
+  width:1.5px;height:44px;background:linear-gradient(to bottom,var(--gold),transparent);
+  animation:scroll-drop 1.8s ease infinite;
+}
+@keyframes scroll-drop{0%,100%{transform:scaleY(1);transform-origin:top;opacity:1}50%{transform:scaleY(.4);opacity:.4}}
+
+@keyframes fup{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════════
+   LOGO STRIP (Trust bar)
+═══════════════════════════════════════════════ */
+.strip-sec{
+  padding:48px 0;
+  border-block:1px solid var(--border);
+  background:var(--bg-2);
+}
+.strip-label{text-align:center;font-size:.72rem;font-weight:700;letter-spacing:2px;color:var(--gray-3);text-transform:uppercase;margin-bottom:28px}
+.strip-row{
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(24px,4vw,56px);flex-wrap:wrap;
+}
+.strip-item{
+  font-family:var(--ffh);font-size:clamp(.9rem,1.4vw,1.1rem);font-weight:800;
+  color:var(--gray-3);letter-spacing:.5px;
+  transition:color .3s;
+}
+.strip-item:hover{color:var(--gray-1)}
+
+/* ═══════════════════════════════════════════════
+   FEATURES
+═══════════════════════════════════════════════ */
+.features-sec{padding:clamp(5rem,9vw,8rem) 0;background:var(--bg)}
+.sec-head{text-align:center;margin-bottom:clamp(3rem,5vw,4.5rem)}
+.sec-head .lead{margin-inline:auto}
+
+.feat-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+.feat-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:18px;padding:36px 30px;
+  position:relative;overflow:hidden;
+  transition:border-color .35s,transform .35s var(--ease),box-shadow .35s;
+}
+.feat-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(145deg,var(--gold-glow) 0%,transparent 55%);
+  opacity:0;transition:opacity .35s;
+}
+.feat-card:hover{border-color:var(--border-g);transform:translateY(-6px);box-shadow:0 20px 48px rgba(0,0,0,.45)}
+.feat-card:hover::before{opacity:1}
+
+.feat-num{
+  position:absolute;top:18px;inset-inline-end:22px;
+  font-family:var(--ffh);font-size:4.5rem;font-weight:900;
+  color:rgba(201,168,76,.06);line-height:1;user-select:none;pointer-events:none;
+}
+.feat-icon{
+  width:52px;height:52px;border-radius:12px;
+  background:rgba(201,168,76,.1);border:1px solid var(--border-g);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;margin-bottom:22px;
+  position:relative;z-index:1;
+  transition:transform .3s var(--spring);
+}
+.feat-card:hover .feat-icon{transform:scale(1.1) rotate(-5deg)}
+.feat-h{font-family:var(--ffh);font-size:1.12rem;font-weight:800;margin-bottom:10px;position:relative;z-index:1}
+.feat-p{font-size:.86rem;color:var(--gray-2);line-height:1.82;position:relative;z-index:1}
+.feat-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px;position:relative;z-index:1}
+.ftag{
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  color:var(--gray-3);font-size:.7rem;padding:3px 10px;border-radius:100px;
+}
+
+/* ═══════════════════════════════════════════════
+   PROCESS
+═══════════════════════════════════════════════ */
+.process-sec{padding:clamp(5rem,9vw,8rem) 0;background:var(--bg-2)}
+
+.process-track{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;position:relative;margin-top:clamp(2.5rem,5vw,4rem);
+}
+/* Connector line */
+.process-track::before{
+  content:'';position:absolute;
+  top:52px;inset-inline-start:calc(16.66% + 52px);
+  width:calc(66.66% - 104px);height:1px;
+  background:linear-gradient(90deg,var(--border-g),var(--gold),var(--border-g));
+}
+
+.step{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:0 clamp(.5rem,2vw,1.5rem);
+  position:relative;
+}
+.step-num{
+  width:104px;height:104px;border-radius:50%;
+  border:1.5px solid var(--border-g);
+  background:var(--bg-card);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;margin-bottom:28px;
+  position:relative;z-index:1;
+  transition:all .35s var(--ease);
+}
+.step:hover .step-num{background:var(--gold-glow);border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,.2)}
+.step-n{font-family:var(--ffh);font-size:1.9rem;font-weight:900;color:var(--gold);line-height:1}
+.step-lbl{font-size:.6rem;font-weight:700;letter-spacing:1.5px;color:var(--gray-3);text-transform:uppercase}
+.step-icon{font-size:1.4rem}
+.step-h{font-family:var(--ffh);font-size:1.05rem;font-weight:800;margin-bottom:8px}
+.step-p{font-size:.84rem;color:var(--gray-2);line-height:1.78}
+
+/* ═══════════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════════ */
+.testi-sec{padding:clamp(5rem,9vw,8rem) 0;background:var(--bg);overflow:hidden}
+
+.testi-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:18px;margin-top:clamp(2.5rem,5vw,4rem);
+}
+.testi-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:18px;padding:32px 28px;
+  display:flex;flex-direction:column;
+  transition:border-color .35s,transform .35s var(--ease);
+}
+.testi-card:hover{border-color:var(--border-g);transform:translateY(-5px)}
+.stars{color:var(--gold);font-size:.85rem;letter-spacing:2px;margin-bottom:16px}
+.testi-q{
+  font-size:.88rem;color:var(--gray-1);line-height:1.85;
+  flex:1;margin-bottom:24px;
+  position:relative;padding-inline-start:18px;
+}
+.testi-q::before{
+  content:'"';position:absolute;inset-inline-start:0;top:-4px;
+  font-size:2.5rem;color:var(--gold);line-height:1;font-family:serif;opacity:.6;
+}
+.testi-person{display:flex;align-items:center;gap:14px;border-top:1px solid var(--border);padding-top:20px}
+.testi-av{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-dk),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ffh);font-size:.88rem;font-weight:800;color:#0c0c0e;
+  flex-shrink:0;
+}
+.testi-name{font-weight:700;font-size:.88rem}
+.testi-role{font-size:.75rem;color:var(--gray-3);margin-top:2px}
+.testi-flag{margin-inline-start:auto;font-size:1.1rem}
+
+/* Featured card */
+.testi-card.featured{
+  border-color:var(--border-g);
+  background:linear-gradient(145deg,rgba(201,168,76,.07) 0%,var(--bg-card) 60%);
+}
+
+/* ═══════════════════════════════════════════════
+   CTA STRIP
+═══════════════════════════════════════════════ */
+.cta-strip{
+  padding:clamp(5rem,8vw,7rem) 0;background:var(--bg-2);
+  position:relative;overflow:hidden;text-align:center;
+}
+.cta-glow{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:600px;height:300px;
+  background:radial-gradient(ellipse,rgba(201,168,76,.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.cta-strip .h2{max-width:640px;margin-inline:auto}
+.cta-strip .lead{margin-inline:auto;margin-bottom:36px}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.cta-note{margin-top:16px;font-size:.75rem;color:var(--gray-3)}
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+.footer{background:var(--bg);border-top:1px solid var(--border);padding:56px 0 28px}
+.footer-grid{
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;
+  gap:40px;margin-bottom:48px;
+}
+.footer-brand .logo{margin-bottom:14px}
+.footer-desc{font-size:.84rem;color:var(--gray-3);line-height:1.8;max-width:240px}
+.footer-col-title{font-family:var(--ffh);font-size:.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-3);margin-bottom:18px}
+.footer-col ul{display:flex;flex-direction:column;gap:10px}
+.footer-col ul a{font-size:.84rem;color:var(--gray-3);transition:color .2s}
+.footer-col ul a:hover{color:var(--gold)}
+.footer-bottom{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  padding-top:24px;border-top:1px solid var(--border);
+}
+.footer-copy{font-size:.78rem;color:var(--gray-3)}
+.footer-socials{display:flex;gap:16px}
+.footer-socials a{
+  font-size:.75rem;color:var(--gray-3);font-weight:600;
+  transition:color .2s;
+}
+.footer-socials a:hover{color:var(--gold)}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media(max-width:1024px){
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .testi-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+}
+
+@media(max-width:768px){
+  .nav-links,.nav-right>.btn-o{display:none}
+  .burger{display:flex}
+  .nav-right .btn-g{display:none}
+
+  .hero-title{font-size:clamp(2.4rem,9vw,4rem);letter-spacing:-1px}
+  .hero-social{gap:16px;flex-wrap:wrap}
+
+  .process-track{grid-template-columns:1fr;gap:32px}
+  .process-track::before{
+    top:calc(16.66% + 52px);
+    inset-inline-start:calc(50% - .75px);
+    width:1.5px;height:calc(66.66% - 104px);
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'Cairo', sans-serif; background: var(--ink); color: var(--white); overflow-x: hidden; cursor: none; }
-  .cursor { width: 12px; height: 12px; background: var(--white); border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; transition: transform 0.1s ease; mix-blend-mode: difference; }
-  .cursor-ring { width: 36px; height: 36px; border: 1px solid var(--white); border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998; transition: transform 0.15s ease, width 0.3s, height 0.3s, opacity 0.3s; opacity: 0.6; }
-  nav { position: fixed; top: 0; width: 100%; padding: 18px 60px; display: flex; align-items: center; justify-content: space-between; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
-  .logo { font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--white); letter-spacing: -0.5px; }
-  .logo span { color: var(--white); }
-  .nav-links { display: flex; gap: 36px; list-style: none; }
-  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.3s; }
-  .nav-links a:hover { color: var(--white); }
-  .nav-cta { background: var(--white); color: var(--ink); padding: 10px 24px; border-radius: 4px; font-weight: 700; font-size: 0.88rem; text-decoration: none; transition: all 0.3s; }
-  .nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
-  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 120px 60px 80px; text-align: center; }
-  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255,255,255,0.04) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 20% 70%, rgba(255,255,255,0.02) 0%, transparent 60%); }
-  .hero-grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%); }
-  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); padding: 6px 16px; border-radius: 100px; font-size: 0.8rem; color: var(--white); font-weight: 600; margin-bottom: 28px; animation: fadeUp 0.8s ease both; }
-  .badge-dot { width: 6px; height: 6px; background: var(--white); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
-  .hero h1 { font-family: 'Tajawal', sans-serif; font-size: clamp(2.8rem, 6vw, 5.5rem); font-weight: 800; line-height: 1.12; letter-spacing: -1px; margin-bottom: 24px; animation: fadeUp 0.8s ease 0.1s both; }
-  .hero h1 .accent { color: var(--white); }
-  .hero p { font-size: clamp(1rem, 1.8vw, 1.2rem); color: var(--muted); max-width: 580px; line-height: 1.8; margin-bottom: 44px; animation: fadeUp 0.8s ease 0.2s both; }
-  .hero-actions { display: flex; gap: 16px; justify-content: center; animation: fadeUp 0.8s ease 0.3s both; }
-  .btn-primary { background: var(--white); color: var(--ink); padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 1rem; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; font-family:'Cairo',sans-serif; }
-  .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(255,255,255,0.15); }
-  .btn-secondary { background: transparent; color: var(--white); padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 1rem; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: all 0.3s; }
-  .btn-secondary:hover { border-color: var(--white); color: var(--white); }
-  .hero-stats { display: flex; gap: 48px; margin-top: 72px; animation: fadeUp 0.8s ease 0.4s both; }
-  .stat { text-align: center; }
-  .stat-num { font-family: 'Tajawal', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--white); line-height: 1; }
-  .stat-label { font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-  section { padding: 100px 60px; }
-  .section-label { display: inline-flex; align-items: center; gap: 8px; color: var(--white); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
-  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--white); }
-  .section-title { font-family: 'Tajawal', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
-  .section-sub { color: var(--muted); font-size: 1.05rem; line-height: 1.8; max-width: 520px; }
-  .builder-section { background: var(--slate); position: relative; overflow: hidden; }
-  .builder-section::before { content: ''; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); }
-  .builder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; max-width: 1200px; margin: 0 auto; }
-  .builder-form { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 36px; }
-  .form-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-  .form-icon { width: 40px; height: 40px; background: var(--white); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-  .form-title { font-weight: 700; font-size: 1rem; }
-  .form-sub { font-size: 0.8rem; color: var(--muted); }
-  .form-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(255,255,255,0.04); border-radius: 8px; padding: 4px; }
-  .tab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.3s; }
-  .tab.active { background: var(--white); color: var(--ink); }
-  .form-group { margin-bottom: 16px; }
-  .form-label { font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; }
-  .form-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px; color: var(--white); font-family: 'Cairo', sans-serif; font-size: 0.88rem; transition: border-color 0.3s; outline: none; }
-  .form-input:focus { border-color: var(--white); background: rgba(255,255,255,0.05); }
-  .form-input::placeholder { color: rgba(255,255,255,0.2); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .form-actions { display: flex; gap: 10px; margin-top: 20px; }
-  .btn-gold { flex: 1; background: var(--white); color: var(--ink); border: none; padding: 12px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
-  .btn-gold:hover { background: var(--gold-light); }
-  .btn-outline-gold { background: transparent; color: var(--white); border: 1px solid var(--white); padding: 12px 20px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
-  .btn-outline-gold:hover { background: rgba(255,255,255,0.08); }
-  .cv-preview { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.5); color: #111; font-family: 'Cairo', sans-serif; position: relative; transform: perspective(1000px) rotateY(-3deg) rotateX(2deg); transition: transform 0.5s ease; }
-  .cv-preview:hover { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
-  .cv-header-bar { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); padding: 28px 24px; color: white; display: flex; align-items: center; gap: 16px; }
-  .cv-avatar { width: 56px; height: 56px; background: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; color: var(--ink); flex-shrink: 0; }
-  .cv-name { font-size: 1.1rem; font-weight: 700; }
-  .cv-role { font-size: 0.78rem; color: #cccccc; margin-top: 2px; }
-  .cv-contact { font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 4px; }
-  .cv-body { padding: 20px 24px; }
-  .cv-section-head { font-size: 0.68rem; font-weight: 700; color: #000000; letter-spacing: 1.5px; text-transform: uppercase; margin: 14px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #000000; }
-  .cv-entry { margin-bottom: 10px; }
-  .cv-entry-title { font-size: 0.78rem; font-weight: 700; color: #000000; }
-  .cv-entry-sub { font-size: 0.7rem; color: #888; margin: 1px 0; }
-  .cv-entry-desc { font-size: 0.68rem; color: #555; line-height: 1.6; }
-  .cv-skills-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
-  .cv-skill-tag { background: rgba(0,0,0,0.06); color: #333333; padding: 3px 10px; border-radius: 100px; font-size: 0.65rem; font-weight: 600; border: 1px solid rgba(0,0,0,0.15); }
-  .ats-badge { position: absolute; top: 12px; left: -8px; background: #000000; color: white; font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; box-shadow: 2px 2px 8px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); }
-  .features-section { background: var(--ink); }
-  .features-inner { max-width: 1200px; margin: 0 auto; }
-  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; }
-  .feature-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; transition: all 0.4s; }
-  .feature-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%); opacity: 0; transition: opacity 0.4s; }
-  .feature-card:hover { border-color: var(--border); transform: translateY(-4px); }
-  .feature-card:hover::before { opacity: 1; }
-  .feature-num { font-family: 'Tajawal', sans-serif; font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.06); position: absolute; top: 16px; left: 24px; line-height: 1; }
-  .feature-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 20px; }
-  .feature-title { font-family: 'Tajawal', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
-  .feature-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.8; }
-  .feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
-  .feature-tag { background: rgba(255,255,255,0.04); color: var(--muted); padding: 3px 10px; border-radius: 100px; font-size: 0.74rem; border: 1px solid rgba(255,255,255,0.06); }
-  .templates-section { background: var(--slate); }
-  .templates-inner { max-width: 1200px; margin: 0 auto; }
-  .templates-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; }
-  .templates-filter { display: flex; gap: 8px; }
-  .filter-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); padding: 8px 16px; border-radius: 100px; font-family: 'Cairo', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-  .filter-btn.active, .filter-btn:hover { background: var(--white); border-color: var(--white); color: var(--ink); }
-  .templates-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-  .template-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s; position: relative; }
-  .template-card:hover { border-color: var(--white); transform: translateY(-4px); }
-  .template-card:hover .template-overlay { opacity: 1; }
-  .template-thumb { height: 200px; position: relative; overflow: hidden; }
-  .template-mini { width: 100%; height: 100%; padding: 10px; display: flex; flex-direction: column; gap: 3px; }
-  .tm-line { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.08); margin-bottom: 2px; }
-  .tm-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0; }
-  .tm-two-col { display: grid; grid-template-columns: 1fr 2fr; gap: 6px; flex: 1; }
-  .tm-sidebar { background: rgba(255,255,255,0.04); border-radius: 4px; padding: 5px; display: flex; flex-direction: column; gap: 3px; }
-  .tm-main-content { display: flex; flex-direction: column; gap: 3px; }
-  .template-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
-  .overlay-btn { background: var(--white); color: var(--ink); padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; border: none; cursor: pointer; font-family:'Cairo',sans-serif; }
-  .template-info { padding: 12px 14px; }
-  .template-name { font-weight: 700; font-size: 0.86rem; margin-bottom: 4px; }
-  .template-meta { display: flex; align-items: center; justify-content: space-between; }
-  .template-sector { font-size: 0.72rem; color: var(--white); font-weight: 600; }
-  .template-langs { display: flex; gap: 4px; }
-  .lang-dot { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 700; color: var(--muted); }
-  .premium-badge { position:absolute; top:10px; right:10px; background:#ffffff; color:var(--ink); font-size:0.62rem; font-weight:800; padding:4px 10px; border-radius:100px; z-index:2; display:flex; align-items:center; gap:4px; box-shadow:0 4px 12px rgba(255,255,255,0.2); letter-spacing:0.3px; }
-  .template-card.locked .template-thumb { filter: saturate(0) brightness(0.55); }
-  .lock-overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:rgba(0,0,0,0.45); }
-  .lock-icon { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1rem; }
-  .lock-price { color:var(--white); font-size:0.78rem; font-weight:700; }
-  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(6px); z-index:2000; display:none; align-items:center; justify-content:center; padding:24px; }
-  .modal-backdrop.open { display:flex; }
-  .paywall-modal { background:var(--slate); border:1px solid var(--border); border-radius:20px; max-width:920px; width:100%; max-height:88vh; overflow:auto; display:grid; grid-template-columns:1fr 1fr; position:relative; box-shadow:0 60px 120px rgba(0,0,0,0.6); }
-  .modal-close { position:absolute; top:16px; left:16px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:var(--white); font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:3; transition:all 0.3s; }
-  .modal-close:hover { background:var(--white); color:var(--ink); }
-  .modal-preview-side { background:var(--ink); padding:28px; display:flex; align-items:center; justify-content:center; position:relative; }
-  .modal-cv-mini { width:100%; max-width:300px; background:var(--white); color:#111; border-radius:10px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.5); filter:blur(2.5px); opacity:0.85; }
-  .modal-info-side { padding:40px 36px; }
-  .modal-premium-tag { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--white); font-size:0.74rem; font-weight:700; padding:5px 14px; border-radius:100px; margin-bottom:18px; }
-  .modal-info-side h3 { font-family:'Tajawal',sans-serif; font-size:1.6rem; font-weight:800; margin-bottom:8px; }
-  .modal-sector { color:var(--muted); font-size:0.85rem; margin-bottom:24px; }
-  .modal-price-box { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; }
-  .modal-price { font-family:'Tajawal',sans-serif; font-size:1.8rem; font-weight:800; color:var(--white); }
-  .modal-price-old { font-size:0.85rem; color:var(--muted); text-decoration:line-through; margin-right:6px; }
-  .modal-price-period { font-size:0.74rem; color:var(--muted); }
-  .modal-features { list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:28px; }
-  .modal-features li { font-size:0.85rem; color:var(--muted); display:flex; align-items:center; gap:10px; }
-  .modal-features li::before { content:'✓'; color:var(--white); font-weight:800; }
-  .paywall-status { margin-top:14px; font-size:0.78rem; color:var(--white); text-align:center; display:none; }
-  @media (max-width:720px){ .paywall-modal{ grid-template-columns:1fr; } .modal-preview-side{ display:none; } }
-  .ai-section { background: var(--ink); position: relative; overflow: hidden; }
-  .ai-section::after { content: 'AI'; position: absolute; top: 50%; right: -60px; transform: translateY(-50%); font-family: 'Tajawal', sans-serif; font-size: 20rem; font-weight: 900; color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; }
-  .ai-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
-  .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-  .ai-tool-list { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; }
-  .ai-tool-item { display: flex; gap: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.3s; align-items: flex-start; }
-  .ai-tool-item:hover, .ai-tool-item.active { border-color: var(--border); background: rgba(255,255,255,0.04); }
-  .ai-tool-icon { width: 44px; height: 44px; background: rgba(255,255,255,0.06); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
-  .ai-tool-title { font-weight: 700; font-size: 0.93rem; margin-bottom: 4px; }
-  .ai-tool-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
-  .ai-demo-panel { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-  .ai-demo-top { background: rgba(255,255,255,0.06); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
-  .ai-demo-title { font-weight: 700; font-size: 0.88rem; color: var(--white); }
-  .ai-status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--white); }
-  .ai-status-dot { width: 6px; height: 6px; background: var(--white); border-radius: 50%; animation: pulse 2s infinite; }
-  .ai-demo-body { padding: 20px; }
-  .ai-input-area { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 12px; color: var(--white); font-family: 'Cairo', sans-serif; font-size: 0.85rem; width: 100%; min-height: 80px; outline: none; resize: none; transition: border-color 0.3s; line-height: 1.7; }
-  .ai-input-area:focus { border-color: var(--white); }
-  .ai-sug-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; margin-bottom: 10px; margin-top: 14px; }
-  .ai-sug-list { display: flex; flex-direction: column; gap: 8px; }
-  .ai-sug-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 14px; font-size: 0.8rem; color: #cccccc; cursor: pointer; transition: all 0.3s; display: flex; align-items: flex-start; gap: 8px; }
-  .ai-sug-item:hover { background: rgba(255,255,255,0.08); }
-  .ai-sug-arrow { color: var(--white); font-size: 0.7rem; flex-shrink: 0; padding-top: 2px; }
-  .tips-section { background: var(--slate); }
-  .tips-inner { max-width: 1200px; margin: 0 auto; }
-  .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 44px; }
-  .tip-card { display: flex; gap: 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 24px; transition: all 0.3s; }
-  .tip-card:hover { border-color: var(--border); }
-  .tip-num { font-family: 'Tajawal', sans-serif; font-size: 1.8rem; font-weight: 900; color: var(--white); line-height: 1; flex-shrink: 0; opacity: 0.7; }
-  .tip-title { font-weight: 700; font-size: 0.93rem; margin-bottom: 6px; }
-  .tip-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.8; }
-  .cta-section { background: var(--ink); text-align: center; padding: 100px 60px; position: relative; }
-  .cta-glow { width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-  .cta-inner { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
-  .cta-inner h2 { font-family: 'Tajawal', sans-serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
-  .cta-inner p { color: var(--muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 36px; }
-  footer { background: rgba(0,0,0,0.5); border-top: 1px solid var(--border); padding: 36px 60px; display: flex; align-items: center; justify-content: space-between; }
-  .footer-logo { font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--muted); }
-  .footer-logo span { color: var(--white); }
-  .footer-copy { font-size: 0.8rem; color: rgba(255,255,255,0.2); }
-  .footer-links { display: flex; gap: 24px; }
-  .footer-links a { color: rgba(255,255,255,0.3); text-decoration: none; font-size: 0.82rem; transition: color 0.3s; }
-  .footer-links a:hover { color: var(--white); }
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: var(--ink); }
-  ::-webkit-scrollbar-thumb { background: var(--white); border-radius: 2px; }
-  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-  .progress-bar { height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; margin-top: 8px; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, #888888, #ffffff); border-radius: 2px; transition: width 1s ease; }
-  .float-dot { position: absolute; width: 4px; height: 4px; background: var(--white); border-radius: 50%; animation: floatAnim linear infinite; opacity: 0; }
-  @keyframes floatAnim { 0% { opacity: 0; transform: translateY(0) scale(1); } 10% { opacity: 0.5; } 90% { opacity: 0.2; } 100% { opacity: 0; transform: translateY(-200px) scale(0.5); } }
-  @media (max-width: 1000px) {
-    nav { padding: 16px 24px; }
-    .nav-links { display: none; }
-    section { padding: 64px 20px; }
-    .builder-grid, .ai-grid { grid-template-columns: 1fr; gap: 40px; }
-    .features-grid { grid-template-columns: 1fr; }
-    .templates-grid { grid-template-columns: repeat(2, 1fr); }
-    .tips-grid { grid-template-columns: 1fr; }
-    footer { flex-direction: column; gap: 16px; text-align: center; }
-    .hero { padding: 100px 20px 60px; }
-    .hero-stats { gap: 24px; flex-wrap: wrap; justify-content: center; }
-    .templates-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-    .templates-filter { flex-wrap: wrap; }
-  }
+
+  .feat-grid{grid-template-columns:1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+}
+
+@media(max-width:480px){
+  .hero-cta{flex-direction:column;align-items:center}
+  .hero-social .hs-divider{display:none}
+  .cta-actions{flex-direction:column;align-items:center}
+}
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursor-ring"></div>
+<!-- ── CURSOR ────────────────────────────── -->
+<div id="cur" aria-hidden="true"></div>
 
-<nav>
-  <div class="logo">Pro<span>CV</span></div>
-  <ul class="nav-links">
-    <li><a href="#builder">صانع السير</a></li>
-    <li><a href="#templates">القوالب</a></li>
-    <li><a href="#tools">أدوات AI</a></li>
-    <li><a href="#tips">نصائح</a></li>
-  </ul>
-  <a href="#builder" class="nav-cta">ابدأ مجاناً ←</a>
+<!-- ── NAV ──────────────────────────────── -->
+<header>
+<nav class="nav" id="nav" aria-label="القائمة الرئيسية">
+  <div class="wrap nav-inner">
+    <a href="index.html" class="logo" aria-label="ProCV">Pro<em>CV</em><sup>BETA</sup></a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="index.html" class="active">الرئيسية</a></li>
+      <li><a href="templates.html">القوالب</a></li>
+      <li><a href="builder.html">الصانع</a></li>
+      <li><a href="pricing.html">الأسعار</a></li>
+      <li><a href="blog.html">المدوّنة</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <a href="login.html" class="btn btn-o btn-sm">تسجيل الدخول</a>
+      <a href="builder.html" class="btn btn-g btn-sm">ابدأ مجاناً ←</a>
+      <button class="burger" id="burger" aria-label="القائمة" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="drawer" id="drawer" role="navigation" aria-label="قائمة الجوال">
+    <a href="index.html">الرئيسية</a>
+    <a href="templates.html">القوالب</a>
+    <a href="builder.html">الصانع</a>
+    <a href="pricing.html">الأسعار</a>
+    <a href="blog.html">المدوّنة</a>
+    <a href="builder.html" class="btn btn-g btn-sm" style="text-align:center;margin-top:8px">ابدأ مجاناً ←</a>
+  </div>
 </nav>
+</header>
 
-<!-- HERO -->
-<section class="hero" id="home">
-  <div class="hero-bg"></div>
-  <div class="hero-grid-bg"></div>
-  <div class="float-dot" style="left:15%;bottom:20%;animation-duration:8s;animation-delay:0s;"></div>
-  <div class="float-dot" style="left:80%;bottom:30%;animation-duration:10s;animation-delay:2s;"></div>
-  <div class="float-dot" style="left:50%;bottom:10%;animation-duration:7s;animation-delay:4s;"></div>
-  <div class="float-dot" style="left:30%;bottom:40%;animation-duration:9s;animation-delay:1s;"></div>
+<main id="main">
 
-  <div class="hero-badge"><span class="badge-dot"></span> مدعوم بالذكاء الاصطناعي</div>
-  <h1>سيرتك الذاتية<br><span class="accent">تفتح الأبواب</span></h1>
-  <p>صانع ذكي لبناء سيرة ذاتية احترافية تتوافق مع أنظمة الـ ATS، مع قوالب متخصصة لكل قطاع ولغات متعددة.</p>
-  <div class="hero-actions">
-    <a href="#builder" class="btn-primary">ابدأ الآن مجاناً ←</a>
-    <a href="#templates" class="btn-secondary">استعرض القوالب</a>
-  </div>
-  <div class="hero-stats">
-    <div class="stat"><div class="stat-num">+50K</div><div class="stat-label">سيرة تم بناؤها</div></div>
-    <div class="stat"><div class="stat-num">98%</div><div class="stat-label">توافق ATS</div></div>
-    <div class="stat"><div class="stat-num">+120</div><div class="stat-label">قالب جاهز</div></div>
-    <div class="stat"><div class="stat-num">3</div><div class="stat-label">لغات مدعومة</div></div>
-  </div>
-</section>
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="hero" id="home" aria-labelledby="hero-h1">
+  <div class="hero-tex" aria-hidden="true"></div>
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="orb orb1" aria-hidden="true"></div>
+  <div class="orb orb2" aria-hidden="true"></div>
 
-<!-- BUILDER -->
-<section class="builder-section" id="builder">
-  <div class="builder-grid">
-    <div class="reveal">
-      <div class="section-label">✦ الصانع الذكي</div>
-      <h2 class="section-title">بنِ سيرتك الذاتية<br>في دقائق</h2>
-      <p class="section-sub">أدخل بياناتك وسيقوم الذكاء الاصطناعي بتحسين الصياغة وضمان توافق السيرة مع معايير ATS.</p>
-      <div class="builder-form" style="margin-top:32px;">
-        <div class="form-header">
-          <div class="form-icon">📄</div>
-          <div><div class="form-title">إنشاء سيرة ذاتية جديدة</div><div class="form-sub">محرر مباشر مع معاينة فورية</div></div>
-        </div>
-        <div class="form-tabs">
-          <div class="tab active" onclick="switchTab(this,'personal')">شخصي</div>
-          <div class="tab" onclick="switchTab(this,'exp')">الخبرات</div>
-          <div class="tab" onclick="switchTab(this,'edu')">التعليم</div>
-          <div class="tab" onclick="switchTab(this,'skills')">المهارات</div>
-        </div>
-        <div id="tab-personal">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">الاسم الكامل</label><input class="form-input" placeholder="أحمد محمد العلي" oninput="updatePreview()" id="inp-name"></div>
-            <div class="form-group"><label class="form-label">المسمى الوظيفي</label><input class="form-input" placeholder="مهندس برمجيات" oninput="updatePreview()" id="inp-role"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">البريد الإلكتروني</label><input class="form-input" type="email" placeholder="name@email.com"></div>
-            <div class="form-group"><label class="form-label">رقم الهاتف</label><input class="form-input" placeholder="+966 5X XXX XXXX"></div>
-          </div>
-          <div class="form-group"><label class="form-label">الملخص المهني</label><textarea class="form-input" style="min-height:75px;resize:vertical;" placeholder="مهندس برمجيات بخبرة 5 سنوات..."></textarea></div>
-        </div>
-        <div id="tab-exp" style="display:none;">
-          <div class="form-group"><label class="form-label">المسمى الوظيفي</label><input class="form-input" placeholder="مطور برمجيات أول"></div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">الشركة</label><input class="form-input" placeholder="شركة تقنيات المستقبل"></div>
-            <div class="form-group"><label class="form-label">الفترة</label><input class="form-input" placeholder="2021 — الحاضر"></div>
-          </div>
-          <div class="form-group"><label class="form-label">الإنجازات (نقطة لكل سطر)</label><textarea class="form-input" style="min-height:85px;resize:vertical;" placeholder="قدت فريق 5 مطورين لتسليم مشروع بقيمة 2M$&#10;خفضت وقت التحميل 40%"></textarea></div>
-        </div>
-        <div id="tab-edu" style="display:none;">
-          <div class="form-group"><label class="form-label">الدرجة العلمية</label><input class="form-input" placeholder="بكالوريوس هندسة الحاسب"></div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">الجامعة</label><input class="form-input" placeholder="جامعة الملك عبدالله"></div>
-            <div class="form-group"><label class="form-label">سنة التخرج</label><input class="form-input" placeholder="2020"></div>
-          </div>
-        </div>
-        <div id="tab-skills" style="display:none;">
-          <div class="form-group"><label class="form-label">المهارات التقنية (افصل بفاصلة)</label><input class="form-input" placeholder="Python, JavaScript, React, AWS, Docker"></div>
-          <div class="form-group"><label class="form-label">المهارات الشخصية</label><input class="form-input" placeholder="القيادة، التواصل، حل المشكلات"></div>
-          <div class="form-group"><label class="form-label">اللغات</label><input class="form-input" placeholder="العربية، الإنجليزية (متقدم)، الفرنسية (متوسط)"></div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-gold" id="ai-btn" onclick="generateAI()">✨ تحسين بالذكاء الاصطناعي</button>
-          <button class="btn-outline-gold" id="pdf-btn" onclick="downloadPDF()">⬇ تحميل PDF</button>
-        </div>
-        <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
-          <span style="font-size:0.72rem;color:var(--muted);">توافق ATS:</span>
-          <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:82%;" id="ats-bar"></div></div>
-          <span style="font-size:0.72rem;color:var(--white);font-weight:700;" id="ats-pct">82%</span>
-        </div>
-      </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="pulse" aria-hidden="true"></span>
+      منصة بناء السير الذاتية رقم #1 عربياً
     </div>
 
-    <!-- CV Preview -->
-    <div class="reveal" style="transition-delay:0.15s">
-      <div style="position:relative;">
-        <div class="ats-badge">✓ متوافق ATS</div>
-        <div class="cv-preview">
-          <div class="cv-header-bar">
-            <div class="cv-avatar" id="prev-initials">أم</div>
-            <div>
-              <div class="cv-name" id="prev-name">أحمد محمد العلي</div>
-              <div class="cv-role" id="prev-role">مهندس برمجيات أول</div>
-              <div class="cv-contact">📧 ahmed@email.com · 📞 +966 5X XXX XXXX · 📍 الرياض</div>
-            </div>
-          </div>
-          <div class="cv-body">
-            <div class="cv-section-head">الملخص المهني</div>
-            <div class="cv-entry-desc">مهندس برمجيات متخصص بخبرة تتجاوز 5 سنوات في تطوير تطبيقات الويب والحلول السحابية.</div>
-            <div class="cv-section-head">الخبرات المهنية</div>
-            <div class="cv-entry">
-              <div class="cv-entry-title">مطور برمجيات أول — شركة تقنيات المستقبل</div>
-              <div class="cv-entry-sub">يناير 2021 — الحاضر · الرياض</div>
-              <div class="cv-entry-desc">• قدت فريقاً من 5 مطورين لتسليم مشروع بقيمة 2M$<br>• خفّضت وقت التحميل بنسبة 40% عبر تحسينات الأداء</div>
-            </div>
-            <div class="cv-section-head">التعليم</div>
-            <div class="cv-entry">
-              <div class="cv-entry-title">بكالوريوس هندسة الحاسب</div>
-              <div class="cv-entry-sub">جامعة الملك عبدالله · 2020 · معدل 4.2/5</div>
-            </div>
-            <div class="cv-section-head">المهارات</div>
-            <div class="cv-skills-grid">
-              <span class="cv-skill-tag">Python</span><span class="cv-skill-tag">JavaScript</span><span class="cv-skill-tag">React</span><span class="cv-skill-tag">AWS</span><span class="cv-skill-tag">Docker</span><span class="cv-skill-tag">القيادة</span>
-            </div>
-          </div>
-        </div>
+    <h1 class="hero-title" id="hero-h1">
+      ابنِ سيرتك.
+      <span class="line2">اكسب المقابلة.</span>
+    </h1>
+
+    <span class="hero-sub">
+      أنشئ سيرة ذاتية احترافية متوافقة مع أنظمة الفرز الآلي ATS في أقل من 5 دقائق،
+      بتصاميم عالمية وأدوات ذكاء اصطناعي متكاملة.
+    </span>
+
+    <div class="hero-cta">
+      <a href="builder.html" class="btn btn-g">ابدأ مجاناً — لا تسجيل مطلوب ←</a>
+      <a href="templates.html" class="btn btn-o">استعرض القوالب</a>
+    </div>
+
+    <div class="hero-social" role="list" aria-label="إحصائيات الموقع">
+      <div class="hs-stat" role="listitem">
+        <span class="hs-num">+52K</span>
+        <span class="hs-lbl">سيرة ذاتية</span>
+      </div>
+      <div class="hs-divider" aria-hidden="true"></div>
+      <div class="hs-stat" role="listitem">
+        <span class="hs-num">98%</span>
+        <span class="hs-lbl">توافق ATS</span>
+      </div>
+      <div class="hs-divider" aria-hidden="true"></div>
+      <div class="hs-stat" role="listitem">
+        <span class="hs-num">+120</span>
+        <span class="hs-lbl">قالب مصمّم</span>
+      </div>
+      <div class="hs-divider" aria-hidden="true"></div>
+      <div class="hs-stat" role="listitem">
+        <span class="hs-num">4.9 ★</span>
+        <span class="hs-lbl">تقييم المستخدمين</span>
       </div>
     </div>
+  </div>
+
+  <div class="scroll-cue" aria-hidden="true">
+    <span>اكتشف</span>
+    <div class="scroll-line"></div>
   </div>
 </section>
 
-<!-- FEATURES -->
-<section class="features-section" id="features">
-  <div class="features-inner">
-    <div class="section-label">✦ المميزات</div>
-    <h2 class="section-title">كل ما تحتاجه<br>في مكان واحد</h2>
-    <div class="features-grid">
-      <div class="feature-card reveal">
-        <div class="feature-num">01</div>
-        <div class="feature-icon">🤖</div>
-        <div class="feature-title">توافق ATS المضمون</div>
-        <div class="feature-desc">قوالب مصممة لتجاوز أنظمة الفرز الآلي التي تستخدمها 98% من الشركات الكبرى، مع بنية واضحة يقرأها النظام بسهولة.</div>
-        <div class="feature-tags"><span class="feature-tag">قابل للفرز الآلي</span><span class="feature-tag">هيكل واضح</span><span class="feature-tag">بدون صور معقدة</span></div>
-      </div>
-      <div class="feature-card reveal" style="transition-delay:0.1s">
-        <div class="feature-num">02</div>
-        <div class="feature-icon">✏️</div>
-        <div class="feature-title">تحرير سلس وفوري</div>
-        <div class="feature-desc">واجهة سهلة الاستخدام تتيح إدخال البيانات مع معاينة فورية. لا حاجة لخبرة في التصميم — السيرة تُبنى بينما تكتب.</div>
-        <div class="feature-tags"><span class="feature-tag">معاينة مباشرة</span><span class="feature-tag">سهل الاستخدام</span><span class="feature-tag">PDF جاهز</span></div>
-      </div>
-      <div class="feature-card reveal" style="transition-delay:0.2s">
-        <div class="feature-num">03</div>
-        <div class="feature-icon">🌍</div>
-        <div class="feature-title">دعم متعدد اللغات</div>
-        <div class="feature-desc">قوالب تدعم العربية والإنجليزية والفرنسية مع تنسيق RTL/LTR مناسب، لتحقيق وصول أوسع للشركات المحلية والعالمية.</div>
-        <div class="feature-tags"><span class="feature-tag">عربي</span><span class="feature-tag">English</span><span class="feature-tag">Français</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TEMPLATES -->
-<section class="templates-section" id="templates">
-  <div class="templates-inner">
-    <div class="templates-header">
-      <div>
-        <div class="section-label">✦ مكتبة القوالب</div>
-        <h2 class="section-title">قوالب لكل مجال</h2>
-      </div>
-      <div class="templates-filter">
-        <button class="filter-btn active" onclick="filterTemplates(this,'all')">الكل</button>
-        <button class="filter-btn" onclick="filterTemplates(this,'tech')">التقنية</button>
-        <button class="filter-btn" onclick="filterTemplates(this,'biz')">الأعمال</button>
-        <button class="filter-btn" onclick="filterTemplates(this,'health')">الصحة</button>
-        <button class="filter-btn" onclick="filterTemplates(this,'edu')">التعليم</button>
-      </div>
-    </div>
-    <div class="templates-grid" id="templates-grid"></div>
-  </div>
-</section>
-
-<!-- AI TOOLS -->
-<section class="ai-section" id="tools">
-  <div class="ai-inner">
-    <div class="ai-grid">
-      <div class="reveal">
-        <div class="section-label">✦ أدوات الذكاء الاصطناعي</div>
-        <h2 class="section-title">اكتب بثقة،<br>الـ AI يحسّن</h2>
-        <p class="section-sub">لا تقتصر على الشكل — محتوى سيرتك بقدر أهميته شكلها. أدواتنا تضمن أن تكون صياغتك مميزة.</p>
-        <div class="ai-tool-list">
-          <div class="ai-tool-item active" onclick="selectTool(this,0)">
-            <div class="ai-tool-icon">💡</div>
-            <div><div class="ai-tool-title">مقترحات النصوص الذكية</div><div class="ai-tool-desc">اكتب وصفاً مبدئياً وسيقترح الذكاء الاصطناعي صياغات قوية بكلمات مفتاحية فعّالة.</div></div>
-          </div>
-          <div class="ai-tool-item" onclick="selectTool(this,1)">
-            <div class="ai-tool-icon">🔍</div>
-            <div><div class="ai-tool-title">تحليل الكلمات المفتاحية</div><div class="ai-tool-desc">تحقق من مدى تضمين سيرتك للكلمات المفتاحية المطلوبة في الوظيفة المستهدفة.</div></div>
-          </div>
-          <div class="ai-tool-item" onclick="selectTool(this,2)">
-            <div class="ai-tool-icon">📊</div>
-            <div><div class="ai-tool-title">تقييم قوة السيرة</div><div class="ai-tool-desc">احصل على تقرير مفصّل يقيّم سيرتك ويقترح تحسينات محددة لكل قسم.</div></div>
-          </div>
-          <div class="ai-tool-item" onclick="selectTool(this,3)">
-            <div class="ai-tool-icon">✂️</div>
-            <div><div class="ai-tool-title">تقليص ذكي وإعادة صياغة</div><div class="ai-tool-desc">حوّل فقرات طويلة إلى نقاط مباشرة ومختصرة — أسلوب ATS المثالي.</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="reveal" style="transition-delay:0.15s">
-        <div class="ai-demo-panel">
-          <div class="ai-demo-top">
-            <span class="ai-demo-title">🤖 مساعد الكتابة الذكي</span>
-            <span class="ai-status"><span class="ai-status-dot"></span>جاهز</span>
-          </div>
-          <div class="ai-demo-body">
-            <div class="ai-sug-label">أدخل وصفك الوظيفي:</div>
-            <textarea class="ai-input-area" id="ai-input" placeholder="مثال: كنت مسؤولاً عن إدارة المشاريع في الفريق وعملت على تحسين العمليات..." rows="4"></textarea>
-            <button class="btn-gold" style="width:100%;margin-top:12px;border-radius:8px;" id="run-ai-btn" onclick="runAI()">✨ تحسين النص</button>
-            <div class="ai-sug-label">اقتراحات محسّنة:</div>
-            <div class="ai-sug-list" id="ai-sug-list">
-              <div class="ai-sug-item"><span class="ai-sug-arrow">→</span>قدت فريق من 8 أعضاء لتسليم 3 مشاريع بنجاح بتقليل التكلفة 25%</div>
-              <div class="ai-sug-item"><span class="ai-sug-arrow">→</span>نفّذت تحسينات منهجية أسفرت عن رفع الكفاءة بنسبة 35%</div>
-              <div class="ai-sug-item"><span class="ai-sug-arrow">→</span>وضعت استراتيجيات أدّت إلى تعزيز الإنتاجية بمقدار ثلث الوقت</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TIPS -->
-<section class="tips-section" id="tips">
-  <div class="tips-inner">
-    <div class="section-label">✦ نصائح الخبراء</div>
-    <h2 class="section-title">اكتب سيرة ذاتية<br>لا تُنسى</h2>
-    <div class="tips-grid">
-      <div class="tip-card reveal">
-        <div class="tip-num">01</div>
-        <div><div class="tip-title">استخدم الأرقام والإنجازات القابلة للقياس</div><div class="tip-desc">بدلاً من "تحسين الأداء"، اكتب "تحسين أداء النظام بنسبة 40% مما أدى إلى توفير 50 ساعة شهرياً". الأرقام تتحدث بصوت أعلى من الأوصاف المبهمة.</div></div>
-      </div>
-      <div class="tip-card reveal" style="transition-delay:0.1s">
-        <div class="tip-num">02</div>
-        <div><div class="tip-title">ابدأ كل نقطة بفعل إنجاز قوي</div><div class="tip-desc">استخدم أفعالاً مثل: قاد، نفّذ، طوّر، أطلق، خفّض، رفع. تجنب "كان مسؤولاً عن" — قل ماذا فعلت وما نتيجته.</div></div>
-      </div>
-      <div class="tip-card reveal">
-        <div class="tip-num">03</div>
-        <div><div class="tip-title">تجنب الصور والجداول والرسوم البيانية</div><div class="tip-desc">أنظمة ATS تعجز عن قراءة العناصر المرئية وقد تُسقط سيرتك قبل أن يراها إنسان. التنسيق النصي البسيط هو الأضمن.</div></div>
-      </div>
-      <div class="tip-card reveal" style="transition-delay:0.1s">
-        <div class="tip-num">04</div>
-        <div><div class="tip-title">خصّص سيرتك لكل وظيفة</div><div class="tip-desc">راجع إعلان الوظيفة وأضف كلماتها المفتاحية في سيرتك. الشركات تبحث عن مرشحين يتحدثون بنفس "لغتها" ومتطلباتها.</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta-section">
-  <div class="cta-glow"></div>
-  <div class="cta-inner">
-    <div class="section-label" style="justify-content:center;">✦ ابدأ الآن</div>
-    <h2>سيرتك الذاتية المثالية<br><span style="color:var(--white)">تنتظرك</span></h2>
-    <p>انضم إلى آلاف المحترفين الذين بنوا سيرتهم الذاتية ونجحوا في الحصول على وظائفهم المثالية.</p>
-    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-      <a href="#builder" class="btn-primary">ابدأ مجاناً — بدون تسجيل ←</a>
-      <a href="#templates" class="btn-secondary">استعرض القوالب</a>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="footer-logo">Pro<span>CV</span></div>
-  <div class="footer-copy">© 2026 ProCV · صانع السير الذاتية الذكي</div>
-  <div class="footer-links"><a href="#">الخصوصية</a><a href="#">الشروط</a><a href="#">تواصل معنا</a></div>
-</footer>
-
-<script>
-// CURSOR
-const cursor = document.getElementById('cursor');
-const ring = document.getElementById('cursor-ring');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-(function anim(){
-  cursor.style.transform=`translate(${mx-6}px,${my-6}px)`;
-  rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;
-  ring.style.transform=`translate(${rx-18}px,${ry-18}px)`;
-  requestAnimationFrame(anim);
-})();
-document.querySelectorAll('a,button,[onclick]').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{ring.style.width='56px';ring.style.height='56px';ring.style.opacity='0.3';});
-  el.addEventListener('mouseleave',()=>{ring.style.width='36px';ring.style.height='36px';ring.style.opacity='0.6';});
-});
-
-// SCROLL REVEAL
-const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-// TABS
-function switchTab(el,id){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  ['personal','exp','edu','skills'].forEach(t=>{
-    const el2=document.getElementById('tab-'+t);
-    if(el2)el2.style.display=(t===id)?'block':'none';
-  });
-}
-
-// PREVIEW
-function updatePreview(){
-  const name=document.getElementById('inp-name').value||'أحمد محمد العلي';
-  const role=document.getElementById('inp-role').value||'مهندس برمجيات أول';
-  const words=name.trim().split(/\s+/);
-  const initials=(words[0]?words[0][0]:'')+(words[1]?words[1][0]:'');
-  document.getElementById('prev-name').textContent=name;
-  document.getElementById('prev-role').textContent=role;
-  document.getElementById('prev-initials').textContent=initials||'أم';
-}
-
-// AI GENERATE
-function generateAI(){
-  const bar=document.getElementById('ats-bar');
-  const pct=document.getElementById('ats-pct');
-  const btn=document.getElementById('ai-btn');
-  let w=82;
-  const iv=setInterval(()=>{w=Math.min(w+1,96);bar.style.width=w+'%';pct.textContent=w+'%';if(w>=96)clearInterval(iv);},30);
-  btn.textContent='⏳ جاري التحليل...';
-  setTimeout(()=>btn.textContent='✅ تم التحسين!',1400);
-  setTimeout(()=>btn.textContent='✨ تحسين بالذكاء الاصطناعي',3000);
-}
-
-function downloadPDF(){
-  const btn=document.getElementById('pdf-btn');
-  btn.textContent='⏳ جاري التحضير...';
-  setTimeout(()=>{btn.textContent='✅ جاهز!';setTimeout(()=>btn.textContent='⬇ تحميل PDF',2000);},1200);
-}
-
-// AI TOOL
-const suggestionSets=[
-  ['قدت فريق من 8 أعضاء لتسليم 3 مشاريع بنجاح بتقليل التكلفة 25%','نفّذت تحسينات منهجية أسفرت عن رفع الكفاءة بنسبة 35%','وضعت استراتيجيات أدّت إلى تعزيز الإنتاجية بمقدار ثلث الوقت'],
-  ['حللت بيانات 10,000+ عميل لاستخراج رؤى رفعت الإيرادات 18%','طوّرت لوحة تحكم تعمل في الوقت الفعلي وخفّضت التقارير من 4 ساعات لـ 20 دقيقة','نسّقت مع 5 فرق متقاطعة لإطلاق منتج جديد في الموعد المحدد'],
-  ['صممت هندسة نظام يستوعب نمو المستخدمين بنسبة 300%','خفّضت معدل الأخطاء البرمجية 60% بتطبيق منهجية اختبار شامل','أطلقت ميزة استخدمها 50,000 مستخدم خلال الأسبوع الأول'],
-  ['أعدت هيكلة عمليات الفريق مما قلّص وقت الدورة 40%','درّبت 12 موظف جديد محققاً متوسط كفاءة 90% خلال أول شهر','وضعت KPIs أسهمت في نمو إيرادات ربع سنوي بنسبة 22%'],
-];
-let currentTool=0;
-function selectTool(el,idx){
-  document.querySelectorAll('.ai-tool-item').forEach(i=>i.classList.remove('active'));
-  el.classList.add('active');
-  currentTool=idx;
-  renderSuggestions(suggestionSets[idx]);
-}
-function renderSuggestions(arr){
-  document.getElementById('ai-sug-list').innerHTML=arr.map(s=>`<div class="ai-sug-item"><span class="ai-sug-arrow">→</span>${s}</div>`).join('');
-}
-function runAI(){
-  const input=document.getElementById('ai-input');
-  const btn=document.getElementById('run-ai-btn');
-  if(!input.value.trim()){input.style.borderColor='rgba(255,255,255,0.5)';setTimeout(()=>input.style.borderColor='',1500);return;}
-  btn.textContent='⏳ جاري التحليل...';
-  document.getElementById('ai-sug-list').innerHTML='<div class="ai-sug-item"><span class="ai-sug-arrow">⏳</span>جاري التحليل والتحسين...</div>';
-  setTimeout(()=>{renderSuggestions(suggestionSets[currentTool]);btn.textContent='✨ تحسين النص';},1300);
-}
-
-// TEMPLATES
-const templates=[
-  {name:'المهندس الرقمي',sector:'التقنية',tag:'tech',c1:'#000000',c2:'#ffffff'},
-  {name:'مدير المشاريع',sector:'الأعمال',tag:'biz',c1:'#000000',c2:'#ffffff'},
-  {name:'الممرض المحترف',sector:'الصحة',tag:'health',c1:'#000000',c2:'#ffffff'},
-  {name:'المعلم المبدع',sector:'التعليم',tag:'edu',c1:'#000000',c2:'#ffffff'},
-  {name:'مهندس اللوجستيات',sector:'الأعمال',tag:'biz',c1:'#000000',c2:'#ffffff'},
-  {name:'المحاسب المالي',sector:'الأعمال',tag:'biz',c1:'#000000',c2:'#ffffff'},
-  {name:'مطور التطبيقات',sector:'التقنية',tag:'tech',c1:'#000000',c2:'#ffffff'},
-  {name:'الطبيب الاستشاري',sector:'الصحة',tag:'health',c1:'#000000',c2:'#ffffff'},
-  {name:'Vendeur Professionnel',sector:'المبيعات · فرنسي',tag:'biz',c1:'#000000',c2:'#ffffff',premium:true,price:'9 ر.س',
-    fullData:{
-      initials:'KB',
-      name:'Karim BENALI',
-      role:'VENDEUR PROFESSIONNEL',
-      contact:'📧 karim.benali.pro@example.com · 📞 +213-555 12 34 56 · 📍 Cité El Wiam, Sétif',
-      profil:"Professionnel de la vente dynamique, sérieux et organisé, doté d'une solide expérience sur le terrain. Rigoureux et doté d'un excellent sens de la communication et de la relation client.",
-      exp:[
-        {title:'Vendeur — Distrimax Algérie',place:'Sétif',period:'mars 2025 — Présent',points:["Assurer la gestion quotidienne des ventes et optimiser la relation client sur le point de vente.","Appliquer les techniques de vente de l'entreprise pour atteindre les objectifs commerciaux."]},
-        {title:'Vendeur — Groupe Atlas Commerce',place:'Sétif',period:'sept. 2024 — févr. 2025',points:["Assurer la promotion active des produits auprès de la clientèle.","Fidéliser les clients à travers un service de conseil de qualité."]},
-      ],
-      edu:"Diplôme/Certificat en Vente et Commerce. Niveau scolaire : Terminale — Sciences expérimentales.",
-      skills:['Techniques de vente','Promotion de produits','Fidélisation client','Communication client','Esprit d\'équipe','Gestion des stocks']
-    }
-  },
-];
-function renderTemplates(filter){
-  const data=filter==='all'?templates:templates.filter(t=>t.tag===filter);
-  document.getElementById('templates-grid').innerHTML=data.map((t,i)=>`
-    <div class="template-card ${t.premium?'locked':''}" ${t.premium?`onclick="openPaywall(${templates.indexOf(t)})"`:''}>
-      ${t.premium?`<div class="premium-badge">🔒 مميز</div>`:''}
-      <div class="template-thumb">
-        <div class="template-mini" style="background:linear-gradient(135deg,${t.c1} 0%,${t.c2}22 100%)">
-          <div style="display:flex;gap:6px;align-items:center;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;margin-bottom:5px;">
-            <div style="width:24px;height:24px;background:${t.c2};border-radius:50%;flex-shrink:0;"></div>
-            <div style="flex:1;"><div class="tm-line" style="background:rgba(255,255,255,0.2);width:65%;height:5px;"></div><div class="tm-line" style="width:40%;height:3px;background:rgba(255,255,255,0.1);margin-top:3px;"></div></div>
-          </div>
-          <div class="tm-divider"></div>
-          <div class="tm-two-col" style="flex:1;">
-            <div class="tm-sidebar">${[70,60,80,55,65].map(w=>`<div class="tm-line" style="width:${w}%;background:rgba(255,255,255,0.15);height:4px;"></div>`).join('')}</div>
-            <div class="tm-main-content">${[90,75,85,65,80,70].map(w=>`<div class="tm-line" style="width:${w}%;"></div>`).join('')}</div>
-          </div>
-        </div>
-        ${t.premium?`<div class="lock-overlay"><div class="lock-icon">🔒</div><div class="lock-price">افتح بـ ${t.price}</div></div>`:`<div class="template-overlay"><button class="overlay-btn">استخدم القالب →</button></div>`}
-      </div>
-      <div class="template-info">
-        <div class="template-name">${t.name}</div>
-        <div class="template-meta">
-          <span class="template-sector">${t.sector}</span>
-          <div class="template-langs"><div class="lang-dot">ع</div><div class="lang-dot">EN</div><div class="lang-dot">FR</div></div>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// PAYWALL MODAL LOGIC
-function buildMiniCV(t){
-  const d=t.fullData;
-  return `
-    <div style="background:linear-gradient(135deg,#000000,#1a1a1a);padding:18px;color:#fff;display:flex;gap:12px;align-items:center;">
-      <div style="width:44px;height:44px;border-radius:50%;background:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;color:#000000;font-size:0.9rem;flex-shrink:0;">${d.initials}</div>
-      <div><div style="font-weight:700;font-size:0.95rem;">${d.name}</div><div style="font-size:0.68rem;color:#cccccc;margin-top:2px;">${d.role}</div></div>
-    </div>
-    <div style="padding:16px;font-family:'Cairo',sans-serif;">
-      <div style="font-size:0.62rem;color:#888;line-height:1.5;margin-bottom:8px;">${d.contact}</div>
-      <div style="font-size:0.62rem;font-weight:700;border-bottom:2px solid #000000;display:inline-block;margin-bottom:5px;">PROFIL</div>
-      <div style="font-size:0.6rem;color:#555;line-height:1.5;margin-bottom:10px;">${d.profil}</div>
-      <div style="font-size:0.62rem;font-weight:700;border-bottom:2px solid #000000;display:inline-block;margin-bottom:5px;">EXPÉRIENCES</div>
-      ${d.exp.map(e=>`<div style="margin-bottom:6px;"><div style="font-size:0.65rem;font-weight:700;">${e.title}</div><div style="font-size:0.58rem;color:#999;">${e.period} · ${e.place}</div></div>`).join('')}
-      <div style="font-size:0.62rem;font-weight:700;border-bottom:2px solid #000000;display:inline-block;margin:6px 0 5px;">COMPÉTENCES</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">${d.skills.map(s=>`<span style="background:rgba(0,0,0,0.06);color:#333333;padding:2px 8px;border-radius:100px;font-size:0.56rem;border:1px solid rgba(0,0,0,0.15);">${s}</span>`).join('')}</div>
-    </div>
-  `;
-}
-function openPaywall(idx){
-  const t=templates[idx];
-  if(!t||!t.premium)return;
-  document.getElementById('modal-tpl-name').textContent=t.name;
-  document.getElementById('modal-tpl-sector').textContent=t.sector;
-  document.getElementById('modal-cv-mini').innerHTML=buildMiniCV(t);
-  document.querySelector('.modal-price').textContent=t.price;
-  document.getElementById('paywall-status').style.display='none';
-  document.querySelector('.btn-gold[onclick="simulatePurchase()"]').style.display='block';
-  document.getElementById('paywall-modal').classList.add('open');
-}
-function closePaywall(){ document.getElementById('paywall-modal').classList.remove('open'); }
-function simulatePurchase(){
-  const btn=document.querySelector('.btn-gold[onclick="simulatePurchase()"]');
-  btn.textContent='⏳ جاري المعالجة...';
-  setTimeout(()=>{
-    btn.style.display='none';
-    document.getElementById('paywall-status').style.display='block';
-  },1300);
-}
-document.getElementById('paywall-modal').addEventListener('click',e=>{ if(e.target.id==='paywall-modal') closePaywall(); });
-function filterTemplates(btn,filter){
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTemplates(filter);
-}
-renderTemplates('all');
-
-// SMOOTH SCROLL
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click',e=>{
-    e.preventDefault();
-    const t=document.querySelector(a.getAttribute('href'));
-    if(t)t.scrollIntoView({behavior:'smooth'});
-  });
-});
-
-// NAV SCROLL
-window.addEventListener('scroll',()=>{
-  document.querySelector('nav').style.boxShadow=window.scrollY>20?'0 4px 30px rgba(0,0,0,0.4)':'none';
-});
-</script><!-- PAYWALL MODAL -->
-<div class="modal-backdrop" id="paywall-modal">
-  <div class="paywall-modal">
-    <button class="modal-close" onclick="closePaywall()">✕</button>
-    <div class="modal-preview-side">
-      <div class="modal-cv-mini" id="modal-cv-mini"></div>
-    </div>
-    <div class="modal-info-side">
-      <div class="modal-premium-tag">🔒 قالب مميز</div>
-      <h3 id="modal-tpl-name">قالب مميز</h3>
-      <div class="modal-sector" id="modal-tpl-sector">قطاع المبيعات</div>
-      <div class="modal-price-box">
-        <div><span class="modal-price-old">29 ر.س</span><span class="modal-price">9 ر.س</span></div>
-        <div class="modal-price-period">دفعة واحدة<br>بدون اشتراك</div>
-      </div>
-      <ul class="modal-features">
-        <li>تصميم احترافي فرنسي بالكامل</li>
-        <li>توافق 100% مع أنظمة ATS</li>
-        <li>تحميل PDF بجودة عالية للطباعة</li>
-        <li>إمكانية التعديل الكامل للنص والألوان</li>
-      </ul>
-      <button class="btn-gold" style="width:100%;border-radius:8px;padding:14px;" onclick="simulatePurchase()">فتح القالب الآن — 9 ر.س</button>
-      <div class="paywall-status" id="paywall-status">✅ تم الفتح بنجاح! يمكنك الآن استخدام القالب.</div>
+<!-- ══════════════════════════════════════════
+     TRUST STRIP
+══════════════════════════════════════════ -->
+<div class="strip-sec" aria-label="شركاء الثقة">
+  <div class="wrap">
+    <p class="strip-label">موثوق لدى محترفين في كبرى المؤسسات</p>
+    <div class="strip-row">
+      <span class="strip-item">Google</span>
+      <span class="strip-item">Microsoft</span>
+      <span class="strip-item">Saudi Aramco</span>
+      <span class="strip-item">STC</span>
+      <span class="strip-item">Almarai</span>
+      <span class="strip-item">NEOM</span>
+      <span class="strip-item">Accenture</span>
     </div>
   </div>
 </div>
+<div class="hdiv"></div>
+
+<!-- ══════════════════════════════════════════
+     FEATURES
+══════════════════════════════════════════ -->
+<section class="features-sec" id="features" aria-labelledby="feat-title">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="tag"><span class="tag-dot"></span>لماذا ProCV</div>
+      <h2 class="h2" id="feat-title">كل ما تحتاجه<br>في منصة واحدة</h2>
+      <p class="lead">نجمع بين التصميم الاحترافي والذكاء الاصطناعي وتوافق ATS لتحصل على سيرة ذاتية لا تُرفض.</p>
+    </div>
+
+    <div class="feat-grid">
+
+      <article class="feat-card rv d1">
+        <span class="feat-num" aria-hidden="true">01</span>
+        <div class="feat-icon" aria-hidden="true">🤖</div>
+        <h3 class="feat-h">توافق ATS مضمون 100%</h3>
+        <p class="feat-p">قوالبنا مبنية بـ Semantic HTML لتجتاز أنظمة الفرز الآلي التي تستخدمها 98% من الشركات الكبرى قبل أن تصل إلى عيون المسؤولين.</p>
+        <div class="feat-tags">
+          <span class="ftag">Semantic HTML</span>
+          <span class="ftag">بنية واضحة</span>
+          <span class="ftag">بدون جداول معقدة</span>
+        </div>
+      </article>
+
+      <article class="feat-card rv d2">
+        <span class="feat-num" aria-hidden="true">02</span>
+        <div class="feat-icon" aria-hidden="true">⚡</div>
+        <h3 class="feat-h">جاهز في 5 دقائق</h3>
+        <p class="feat-p">محرر مباشر بمعاينة فورية — ادخل بياناتك وشاهد سيرتك تتشكل في الوقت الحقيقي دون الحاجة لأي خبرة في التصميم.</p>
+        <div class="feat-tags">
+          <span class="ftag">معاينة فورية</span>
+          <span class="ftag">سهل الاستخدام</span>
+          <span class="ftag">تصدير PDF</span>
+        </div>
+      </article>
+
+      <article class="feat-card rv d3">
+        <span class="feat-num" aria-hidden="true">03</span>
+        <div class="feat-icon" aria-hidden="true">✨</div>
+        <h3 class="feat-h">مساعد الكتابة بالذكاء الاصطناعي</h3>
+        <p class="feat-p">اكتب وصفك المهني بكلماتك العادية وسيحوّله الذكاء الاصطناعي إلى صياغة احترافية مع كلمات مفتاحية تزيد فرصك.</p>
+        <div class="feat-tags">
+          <span class="ftag">GPT-4 Powered</span>
+          <span class="ftag">كلمات مفتاحية</span>
+          <span class="ftag">إعادة صياغة ذكية</span>
+        </div>
+      </article>
+
+      <article class="feat-card rv d1">
+        <span class="feat-num" aria-hidden="true">04</span>
+        <div class="feat-icon" aria-hidden="true">🌍</div>
+        <h3 class="feat-h">ثلاث لغات — تنسيق مثالي</h3>
+        <p class="feat-p">قوالب عربية بـ RTL مثالي، فرنسية وإنجليزية بـ LTR — كل قالب محسّن لخصائص كل لغة، ليس مجرد ترجمة.</p>
+        <div class="feat-tags">
+          <span class="ftag">العربية</span>
+          <span class="ftag">English</span>
+          <span class="ftag">Français</span>
+        </div>
+      </article>
+
+      <article class="feat-card rv d2">
+        <span class="feat-num" aria-hidden="true">05</span>
+        <div class="feat-icon" aria-hidden="true">🎨</div>
+        <h3 class="feat-h">+120 قالب احترافي</h3>
+        <p class="feat-p">مكتبة ضخمة من القوالب المصنّفة حسب القطاع — تقنية، صحة، أعمال، تعليم، لوجستيات — كل قالب صمّمه خبراء التوظيف.</p>
+        <div class="feat-tags">
+          <span class="ftag">+15 قطاع</span>
+          <span class="ftag">قوالب مميزة</span>
+          <span class="ftag">محدّث دورياً</span>
+        </div>
+      </article>
+
+      <article class="feat-card rv d3">
+        <span class="feat-num" aria-hidden="true">06</span>
+        <div class="feat-icon" aria-hidden="true">🔒</div>
+        <h3 class="feat-h">خصوصيتك أولاً</h3>
+        <p class="feat-p">بياناتك مشفّرة ولن تُشارَك أبداً. لا إعلانات، لا تتبع — فقط أداة نظيفة تخدمك وتحترم خصوصيتك.</p>
+        <div class="feat-tags">
+          <span class="ftag">بدون إعلانات</span>
+          <span class="ftag">بيانات مشفرة</span>
+          <span class="ftag">GDPR Ready</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<div class="hdiv"></div>
+
+<!-- ══════════════════════════════════════════
+     PROCESS
+══════════════════════════════════════════ -->
+<section class="process-sec" id="process" aria-labelledby="proc-title">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="tag"><span class="tag-dot"></span>كيف يعمل ProCV</div>
+      <h2 class="h2" id="proc-title">ثلاث خطوات فقط<br>للسيرة المثالية</h2>
+      <p class="lead">من الفكرة إلى سيرة ذاتية جاهزة للإرسال في وقت أقل مما تتخيّل.</p>
+    </div>
+
+    <div class="process-track">
+      <div class="step rv d1">
+        <div class="step-num">
+          <span class="step-n">1</span>
+          <span class="step-icon">🎨</span>
+          <span class="step-lbl">اختر</span>
+        </div>
+        <h3 class="step-h">اختر قالبك</h3>
+        <p class="step-p">تصفح مكتبة القوالب واختر ما يناسب قطاعك ومستوى خبرتك. كل قالب محسّن للـ ATS ومصمم باحترافية عالمية.</p>
+      </div>
+
+      <div class="step rv d3">
+        <div class="step-num">
+          <span class="step-n">2</span>
+          <span class="step-icon">✍️</span>
+          <span class="step-lbl">أضِف</span>
+        </div>
+        <h3 class="step-h">أضف بياناتك</h3>
+        <p class="step-p">محرر بسيط وسهل — أدخل معلوماتك وشاهد السيرة تتبنى التنسيق المثالي تلقائياً. الذكاء الاصطناعي يحسّن صياغتك.</p>
+      </div>
+
+      <div class="step rv d5">
+        <div class="step-num">
+          <span class="step-n">3</span>
+          <span class="step-icon">📄</span>
+          <span class="step-lbl">احصل</span>
+        </div>
+        <h3 class="step-h">احصل على ملفك</h3>
+        <p class="step-p">حمّل سيرتك بصيغة PDF بجودة طباعة عالية جاهزة للإرسال، أو اشاركها برابط مباشر مع أصحاب العمل.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hdiv"></div>
+
+<!-- ══════════════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════════════ -->
+<section class="testi-sec" id="testimonials" aria-labelledby="testi-title">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="tag"><span class="tag-dot"></span>آراء حقيقية</div>
+      <h2 class="h2" id="testi-title">ماذا يقول<br>من نجحوا؟</h2>
+      <p class="lead">أكثر من 52,000 محترف استخدموا ProCV وحصلوا على وظائفهم المثالية.</p>
+    </div>
+
+    <div class="testi-grid">
+
+      <article class="testi-card featured rv d1">
+        <div class="stars" aria-label="تقييم 5 نجوم">★★★★★</div>
+        <p class="testi-q">حصلت على 4 مقابلات في أسبوع واحد بعد ما استخدمت ProCV. التصميم الاحترافي وتوافق الـ ATS فرق كبير جداً عن سيرتي القديمة.</p>
+        <div class="testi-person">
+          <div class="testi-av" aria-hidden="true">سع</div>
+          <div>
+            <div class="testi-name">سعود العمري</div>
+            <div class="testi-role">مهندس برمجيات · Riyadh</div>
+          </div>
+          <span class="testi-flag" aria-label="المملكة العربية السعودية">🇸🇦</span>
+        </div>
+      </article>
+
+      <article class="testi-card rv d2">
+        <div class="stars" aria-label="تقييم 5 نجوم">★★★★★</div>
+        <p class="testi-q">القالب الفرنسي كان احترافي جداً ساعدني أحصل على عمل في شركة فرنسية بالجزائر. مشكرين على الجودة والسرعة.</p>
+        <div class="testi-person">
+          <div class="testi-av" aria-hidden="true">نب</div>
+          <div>
+            <div class="testi-name">نادية بوعلام</div>
+            <div class="testi-role">مديرة مبيعات · Alger</div>
+          </div>
+          <span class="testi-flag" aria-label="الجزائر">🇩🇿</span>
+        </div>
+      </article>
+
+      <article class="testi-card rv d3">
+        <div class="stars" aria-label="تقييم 5 نجوم">★★★★★</div>
+        <p class="testi-q">كنت أرسل سيرتي لأشهر وما أتلقى ردوداً. بعد ProCV وصلتني 3 عروض في 10 أيام. الـ AI حسّن كلامي بشكل ما توقعته.</p>
+        <div class="testi-person">
+          <div class="testi-av" aria-hidden="true">أم</div>
+          <div>
+            <div class="testi-name">أحمد المطيري</div>
+            <div class="testi-role">محاسب مالي · Kuwait City</div>
+          </div>
+          <span class="testi-flag" aria-label="الكويت">🇰🇼</span>
+        </div>
+      </article>
+
+      <article class="testi-card rv d1">
+        <div class="stars" aria-label="تقييم 5 نجوم">★★★★★</div>
+        <p class="testi-q">الواجهة سهلة جداً والنتيجة تفوق التوقعات. استغرقت مني 8 دقائق فقط وطلع معي CV يعادل اللي كنت أدفع 200 درهم عشان أصمّمه.</p>
+        <div class="testi-person">
+          <div class="testi-av" aria-hidden="true">رخ</div>
+          <div>
+            <div class="testi-name">ريم الخليفي</div>
+            <div class="testi-role">مصمّمة جرافيك · Dubai</div>
+          </div>
+          <span class="testi-flag" aria-label="الإمارات">🇦🇪</span>
+        </div>
+      </article>
+
+      <article class="testi-card rv d2">
+        <div class="stars" aria-label="تقييم 5 نجوم">★★★★★</div>
+        <p class="testi-q">استعملته لأول مرة وفوجئت بالجودة. الذكاء الاصطناعي صاغ ملخصي المهني بطريقة أنا ما كنت قادر أكتبها. شكراً ProCV.</p>
+        <div class="testi-person">
+          <div class="testi-av" aria-hidden="true">يح</div>
+          <div>
+            <div class="testi-name">ياسين الحاج</div>
+            <div class="testi-role">مهندس لوجستيات · Tunis</div>
+          </div>
+          <span class="testi-flag" aria-label="تونس">🇹🇳</span>
+        </div>
+      </article>
+
+      <article class="testi-card rv d3">
+        <div class="stars" aria-label="تقييم 4 نجوم">★★★★☆</div>
+        <p class="testi-q">خدمة ممتازة وقوالب راقية. أتمنى يضيفون المزيد من القوالب المخصصة للطب. حصلت على مقابلتين من المستشفيات الكبرى.</p>
+        <div class="testi-person">
+          <div class="testi-av" aria-hidden="true">دز</div>
+          <div>
+            <div class="testi-name">دعاء زهراني</div>
+            <div class="testi-role">طبيبة عامة · Jeddah</div>
+          </div>
+          <span class="testi-flag" aria-label="المملكة العربية السعودية">🇸🇦</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<div class="hdiv"></div>
+
+<!-- ══════════════════════════════════════════
+     CTA STRIP
+══════════════════════════════════════════ -->
+<section class="cta-strip" aria-labelledby="cta-title">
+  <div class="cta-glow" aria-hidden="true"></div>
+  <div class="wrap rv">
+    <div class="tag" style="justify-content:center"><span class="tag-dot"></span>ابدأ الآن</div>
+    <h2 class="h2" id="cta-title">
+      سيرتك المثالية<br>
+      <span style="background:linear-gradient(135deg,var(--gold),var(--gold-lt));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">تنتظرك الآن</span>
+    </h2>
+    <p class="lead">انضم إلى أكثر من 52,000 محترف عربي بنوا سيرتهم الذاتية وغيّروا مسيرتهم المهنية.</p>
+    <div class="cta-actions">
+      <a href="builder.html" class="btn btn-g">ابنِ سيرتك مجاناً ←</a>
+      <a href="templates.html" class="btn btn-o">استعرض القوالب</a>
+    </div>
+    <p class="cta-note">✦ بدون بطاقة ائتمانية · بدون تسجيل · جاهز في 5 دقائق</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer class="footer" role="contentinfo">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">Pro<em>CV</em><sup>BETA</sup></div>
+        <p class="footer-desc">منصة بناء السير الذاتية الاحترافية الأولى عربياً — ذكاء اصطناعي، توافق ATS، وتصاميم عالمية.</p>
+      </div>
+
+      <div class="footer-col">
+        <h3 class="footer-col-title">المنتج</h3>
+        <ul>
+          <li><a href="builder.html">الصانع الذكي</a></li>
+          <li><a href="templates.html">القوالب</a></li>
+          <li><a href="pricing.html">الأسعار</a></li>
+          <li><a href="blog.html">المدوّنة</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3 class="footer-col-title">الدعم</h3>
+        <ul>
+          <li><a href="#">مركز المساعدة</a></li>
+          <li><a href="#">تواصل معنا</a></li>
+          <li><a href="#">الأسئلة الشائعة</a></li>
+          <li><a href="#">حالة الخدمة</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3 class="footer-col-title">قانوني</h3>
+        <ul>
+          <li><a href="#">سياسة الخصوصية</a></li>
+          <li><a href="#">شروط الاستخدام</a></li>
+          <li><a href="#">سياسة الاسترداد</a></li>
+          <li><a href="#">بيان الإمكانية</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 ProCV — جميع الحقوق محفوظة</p>
+      <div class="footer-socials">
+        <a href="#" aria-label="تويتر">تويتر / X</a>
+        <a href="#" aria-label="لينكدإن">LinkedIn</a>
+        <a href="#" aria-label="إنستغرام">Instagram</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+/* ── CURSOR ─────────────────────────── */
+(function(){
+  const dot = document.getElementById('cur');
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function loop(){
+    dot.style.transform=`translate(${mx-4.5}px,${my-4.5}px)`;
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a,button,[onclick],[tabindex="0"]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>dot.classList.add('big'));
+    el.addEventListener('mouseleave',()=>dot.classList.remove('big'));
+  });
+  /* Hide on touch devices */
+  window.addEventListener('touchstart',()=>dot.style.display='none',{once:true});
+})();
+
+/* ── NAV ────────────────────────────── */
+(function(){
+  const nav    = document.getElementById('nav');
+  const burger = document.getElementById('burger');
+  const drawer = document.getElementById('drawer');
+
+  window.addEventListener('scroll',()=>{
+    nav.classList.toggle('up', window.scrollY > 40);
+  },{passive:true});
+
+  burger.addEventListener('click',()=>{
+    const open = drawer.classList.toggle('show');
+    burger.classList.toggle('x', open);
+    burger.setAttribute('aria-expanded', open);
+  });
+
+  /* Close drawer on link click */
+  drawer.querySelectorAll('a').forEach(a=>{
+    a.addEventListener('click',()=>{
+      drawer.classList.remove('show');
+      burger.classList.remove('x');
+      burger.setAttribute('aria-expanded','false');
+    });
+  });
+
+  /* Escape key */
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      drawer.classList.remove('show');
+      burger.classList.remove('x');
+      burger.setAttribute('aria-expanded','false');
+    }
+  });
+})();
+
+/* ── SMOOTH SCROLL ───────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  });
+});
+
+/* ── SCROLL REVEAL ───────────────────── */
+(function(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target);}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+})();
+
+/* ── COUNTER ANIMATION ─────────────── */
+(function(){
+  const targets=[
+    {el:document.querySelector('.hs-num'),end:52000,suffix:'K+',prefix:'+',divisor:1000},
+  ];
+  // Simplified — just ensure elements are visible
+})();
+</script>
 
 </body>
 </html>
